@@ -1,5 +1,5 @@
 import React from "react";
-import { InvoiceItem, Product } from "../../utils/types/types";
+import { InvoiceItem } from "../../utils/types/types";
 import InvoiceItems from "./InvoiceItems";
 import InvoiceProductSearch from "./InvoiceProductSearch";
 import InvoiceStudentSearch from "./InvoiceStudentSearch";
@@ -7,7 +7,7 @@ import InvoiceStudentSearch from "./InvoiceStudentSearch";
 // Define the props interface
 interface CreateInvoiceFormProps {
   student: any;
-  addProduct: (product: Product) => void;
+  addProduct: (product: any) => void;
   items: InvoiceItem[];
   updateQuantity: (index: number, quantity: number) => void;
   removeItem: (index: number) => void;
