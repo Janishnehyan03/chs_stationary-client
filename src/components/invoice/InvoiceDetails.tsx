@@ -1,4 +1,6 @@
 import React from "react";
+import Axios from "../../Axios";
+import DeleteInvoiceButton from "./DeleteInvoiceButton"; // Import the new component
 
 interface InvoiceDetailsProps {
   invoice: {
@@ -11,7 +13,15 @@ interface InvoiceDetailsProps {
   totalAmount: number;
 }
 
-const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoice, totalAmount }) => {
+const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
+  invoice,
+  totalAmount,
+}) => {
+  const handleDeleteInvoice = async (id: string) => {
+    await Axios.delete(`/invoices/${id}`);
+    window.location.reload(); // Reload the page after deletion
+  };
+
   return (
     <div className="p-4 border-t border-gray-100">
       <div className="divide-y divide-gray-100">
@@ -19,7 +29,9 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoice, totalAmount })
           <div key={index} className="py-3 first:pt-0 last:pb-0">
             <div className="flex justify-between items-center">
               <div className="flex-1">
-                <p className="font-medium text-gray-800">{item.product.title}</p>
+                <p className="font-medium text-gray-800">
+                  {item.product.title}
+                </p>
                 <div className="flex items-center text-gray-500 text-sm space-x-4 mt-1">
                   <span>₹{item.product.price.toLocaleString()}</span>
                   <span>×</span>
@@ -42,9 +54,11 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoice, totalAmount })
       </div>
 
       <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between gap-2">
-        <button className="flex-1 text-center py-2 border border-gray-200 text-gray-600 rounded hover:bg-gray-50 transition-colors text-sm font-medium">
-          Download PDF
-        </button>
+        <DeleteInvoiceButton
+          invoiceId={invoice._id}
+          onDelete={handleDeleteInvoice}
+
+        />
       </div>
     </div>
   );

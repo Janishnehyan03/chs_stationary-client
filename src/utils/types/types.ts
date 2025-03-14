@@ -44,6 +44,7 @@ export interface User {
   role: string;
   phone: string;
   email: string;
+  invoices: Invoice[];
 }
 
 export interface Product {

@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import Axios from "../../Axios";
 import { Invoice } from "../../utils/types/types";
@@ -7,6 +7,7 @@ import InvoiceDetails from "./InvoiceDetails";
 import InvoiceItem from "./InvoiceItem";
 import InvoiceSummary from "./InvoiceSummary";
 import dayjs from "dayjs";
+import { fetchInvoices } from "../../utils/services/invoice.service";
 
 export default function LatestInvoices({
   newDataAdded,
@@ -27,17 +28,16 @@ export default function LatestInvoices({
   );
   const [customEndDate, setCustomEndDate] = useState<Date | null>(new Date());
 
-  const fetchInvoices = async () => {
-    try {
-      const response = await Axios.get<Invoice[]>("/invoices");
-      setInvoices(response.data);
-    } catch (error) {
-      console.error("Error fetching invoices:", error);
-    }
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchInvoiceData = async () => {
+    const { data } = await Axios.get("/invoices");
+    setInvoices(data);
   };
 
   useEffect(() => {
-    fetchInvoices();
+    fetchInvoiceData();
   }, [newDataAdded]);
 
   const handleSave = () => {
@@ -45,7 +45,7 @@ export default function LatestInvoices({
     setEditingInvoice(null);
   };
 
-  // Filter invoices based on the selected date range
+  // Filter invoices based on the selected date range and search query
   const filteredInvoices = invoices.filter((invoice) => {
     const invoiceDate = dayjs(invoice.createdAt);
     const { startDate, endDate } =
@@ -61,7 +61,16 @@ export default function LatestInvoices({
           }
         : getFilterDates(filter);
 
-    return invoiceDate.isAfter(startDate) && invoiceDate.isBefore(endDate);
+    // Check if the invoice date is within the selected range
+    const isWithinDateRange =
+      invoiceDate.isAfter(startDate) && invoiceDate.isBefore(endDate);
+
+    // Check if the invoice matches the search query (case-insensitive)
+    const matchesSearchQuery = invoice.user.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
+    return isWithinDateRange && matchesSearchQuery;
   });
 
   return (
@@ -88,6 +97,23 @@ export default function LatestInvoices({
         invoicePaid={invoicePaid}
       />
 
+      {/* Search Box */}
+      <div className="mt-6 mb-8">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search by student name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-2.5 pl-10 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-700 font-medium"
+          />
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          />
+        </div>
+      </div>
+
       {filteredInvoices.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
           <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -97,12 +123,10 @@ export default function LatestInvoices({
             No Invoices Found
           </h3>
           <p className="text-gray-500 mb-6">
-            Create your first invoice to get started.
+            {searchQuery
+              ? "No invoices match your search."
+              : "Create your first invoice to get started."}
           </p>
-          {/* <button className="inline-flex items-center gap-2 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus size={16} />
-            Create Invoice
-          </button> */}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

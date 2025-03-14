@@ -1,8 +1,7 @@
-import { Pencil, CreditCard, EyeOff } from "lucide-react";
-import { useState, useCallback } from "react";
-import Axios from "../../Axios";
+import { CreditCard, EyeOff, Pencil } from "lucide-react";
+import { useCallback, useState } from "react";
+import { handlePayment } from "../../utils/services/invoice.service";
 import { Invoice } from "../../utils/types/types";
-
 interface InvoiceItemProps {
   invoice: Invoice;
   setEditingInvoice: (invoice: Invoice | null) => void;
@@ -36,46 +35,27 @@ const InvoiceItem: React.FC<InvoiceItemProps> = ({
     setUseBalance(checked);
     setAmount(checked ? Math.min(pendingAmount, studentBalance) : "");
   };
-  const handlePayment = useCallback(async () => {
-    if (!amount || isNaN(Number(amount))) {
-      alert("Please enter a valid amount.");
-      return;
-    }
 
-    const paymentAmount = Number(amount);
-    if (paymentAmount <= 0 || paymentAmount > pendingAmount) {
-      alert(`Please enter an amount between ₹1 and ₹${pendingAmount}.`);
-      return;
-    }
-
-    if (useBalance && studentBalance < paymentAmount) {
-      alert("Insufficient balance. Please use another payment method.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await Axios.patch(`/invoices/pay/${invoice._id}`, {
-        amount: paymentAmount,
-        useBalance,
-      });
-      alert("Payment successful!");
-      setShowPayment(false);
-      setAmount("");
-      fetchInvoices();
-      setInvoicePaid(true);
-    } catch (error) {
-      console.error("Payment failed:", error);
-      alert("Payment failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+  const onPayment = useCallback(async () => {
+    await handlePayment({
+      invoiceId: invoice._id,
+      amount,
+      useBalance,
+      pendingAmount,
+      studentBalance,
+      fetchInvoices,
+      setInvoicePaid,
+      setLoading,
+      setShowPayment,
+      setAmount,
+    });
   }, [
     amount,
     useBalance,
     pendingAmount,
     studentBalance,
     fetchInvoices,
+    setInvoicePaid,
     invoice._id,
   ]);
 
@@ -85,7 +65,7 @@ const InvoiceItem: React.FC<InvoiceItemProps> = ({
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-bold text-lg text-gray-900">
-              {invoice.user?.name || "Unknown Student"}
+              {invoice.user?.name}
             </h3>
             <div className="flex items-center gap-2 mt-1">
               <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
@@ -184,7 +164,7 @@ const InvoiceItem: React.FC<InvoiceItemProps> = ({
               </div>
             )}
             <button
-              onClick={handlePayment}
+              onClick={onPayment}
               className="w-full mt-2 bg-blue-600 text-white p-2 rounded flex items-center justify-center gap-2 disabled:opacity-50"
               disabled={loading || !amount}
             >

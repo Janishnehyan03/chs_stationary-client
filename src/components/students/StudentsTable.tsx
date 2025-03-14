@@ -10,7 +10,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import AddStudentModal from "./AddStudentModal"; // Adjust the import path
 import { User } from "../../utils/types/types";
-import { downloadInvoicePDF } from "../../utils/services/invoice.service";
+import { downloadInvoicePDF } from "../../utils/services/download-invoice.service";
+import InvoiceOfStudent from "../invoice/InvoiceOfStudent";
 
 interface ClassOption {
   _id: string;
@@ -37,6 +38,7 @@ export default function StudentsTable({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
+  const [showInvoice, setShowInvoice] = useState(false);
 
   const filteredStudents = students.filter(
     (student) =>
@@ -45,8 +47,20 @@ export default function StudentsTable({
       (selectedClass === "" || student.class?._id === selectedClass)
   );
 
+  const handleShowInvoice = (student: User) => {
+    setSelectedStudent(student); // Set the selected student
+    setShowInvoice(true); // Show the invoice modal
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+      {showInvoice && selectedStudent && (
+        <InvoiceOfStudent
+          student={selectedStudent}
+          showModal={showInvoice}
+          handleClose={() => setShowInvoice(false)}
+        />
+      )}
       {/* Class Selection Header */}
       <div className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
@@ -82,10 +96,10 @@ export default function StudentsTable({
             </button>
             {selectedClass && (
               <button
-              className="px-4 py-2.5 flex space-x-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors"
-              onClick={() => downloadInvoicePDF(selectedClass)}
+                className="px-4 py-2.5 flex space-x-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors"
+                onClick={() => downloadInvoicePDF(selectedClass)}
               >
-              <Download /> Download Invoice
+                <Download /> Download Invoice
               </button>
             )}
           </div>
@@ -114,6 +128,9 @@ export default function StudentsTable({
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                 Due Amount
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                Show Invoice
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                 Edit
@@ -171,6 +188,14 @@ export default function StudentsTable({
                     >
                       ₹{student.dueAmount}
                     </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleShowInvoice(student)} // Use the handler here
+                      className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-600 bg-indigo-50 transition-colors hover:bg-indigo-100 cursor-pointer"
+                    >
+                      show invoice
+                    </button>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
