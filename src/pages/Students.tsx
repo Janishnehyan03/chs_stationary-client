@@ -38,14 +38,16 @@ export default function StudentsPage() {
     }
   };
 
-  // const deleteStudent = async (id: string) => {
-  //   try {
-  //     await Axios.delete(`/students/${id}`);
-  //     fetchStudents();
-  //   } catch (error) {
-  //     console.error("Error deleting student:", error);
-  //   }
-  // };
+  const deleteStudent = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this student?"))
+      return;
+    try {
+      await Axios.delete(`/students/${id}`);
+      fetchStudents();
+    } catch (error) {
+      console.error("Error deleting student:", error);
+    }
+  };
 
   useEffect(() => {
     fetchClasses();
@@ -53,36 +55,34 @@ export default function StudentsPage() {
   }, []);
 
   return (
-    <div className="p-6 bg-green-50 min-h-screen">
-      <div className="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-md">
-        <div className="flex justify-between items-center mb-6">
+    <div className="p-6 bg-green-50 dark:bg-gray-900 min-h-screen">
+      <div className="max-w-5xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <input
             type="text"
             placeholder="Search students..."
-            className="border border-green-300 px-4 py-2 rounded-lg w-1/2 focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="border border-green-300 dark:border-gray-600 px-4 py-2 rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500 dark:bg-gray-700 dark:text-gray-200"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <div className="flex gap-3">
-      
-            <button
-              className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center gap-2 transition"
-              onClick={() => setIsImportOpen(true)}
-            >
-              <Upload size={20} /> Import Students
-            </button>
-          </div>
+          <button
+            className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center gap-2 transition"
+            onClick={() => setIsImportOpen(true)}
+          >
+            <Upload size={20} /> Import Students
+          </button>
         </div>
 
         <StudentsTable
           students={students}
           search={search}
-          // onDelete={deleteStudent}
+          onDelete={deleteStudent}
           classes={classes}
           fetchStudents={fetchStudents}
         />
       </div>
 
+      {/* Modals */}
       {isModalOpen && (
         <AddStudentModal
           isOpen={isModalOpen}

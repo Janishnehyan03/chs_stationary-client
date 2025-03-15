@@ -14,7 +14,7 @@ const InvoiceSummary = ({
   setCustomStartDate,
   customEndDate,
   setCustomEndDate,
-  invoicePaid
+  invoicePaid,
 }: {
   filter: string;
   setFilter: (filter: string) => void;
@@ -59,64 +59,75 @@ const InvoiceSummary = ({
   }, [filter, customStartDate, customEndDate, invoicePaid]);
 
   return (
-    <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-      <div className="flex gap-6">
+    <div className="flex flex-col md:flex-row justify-between items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+      {/* Summary Section */}
+      <div className="grid grid-cols-2 md:flex gap-6 w-full md:w-auto">
         <div>
-          <p className="text-sm text-gray-500">Total Purchase </p>
-          <p className="text-xl font-semibold text-green-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Total Purchase
+          </p>
+          <p className="text-xl font-semibold text-green-600 dark:text-green-400">
             ₹{totalRevenue.toLocaleString()}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Total Paid</p>
-          <p className="text-xl font-semibold text-blue-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Paid</p>
+          <p className="text-xl font-semibold text-blue-600 dark:text-blue-400">
             ₹{totalPaid.toLocaleString()}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Total Due</p>
-          <p className="text-xl font-semibold text-red-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Due</p>
+          <p className="text-xl font-semibold text-red-600 dark:text-red-400">
             ₹{totalDue.toLocaleString()}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Total Student Balance</p>
-          <p className="text-xl font-semibold text-yellow-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Total Student Balance
+          </p>
+          <p className="text-xl font-semibold text-yellow-600 dark:text-yellow-400">
             ₹{totalStudentBalance.toLocaleString()}
           </p>
         </div>
       </div>
 
-      <select
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        className="border border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      >
-        {FILTER_OPTIONS.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
+      {/* Filter Dropdown */}
+      <div className="mt-4 md:mt-0">
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          {FILTER_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
 
+      {/* Date Picker (Shown only if custom filter is selected) */}
       {filter === "custom" && (
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4 mt-4 md:mt-0">
           <div>
-            <p className="text-sm text-gray-500">Start Date</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Start Date
+            </p>
             <DatePicker
               selected={customStartDate}
               onChange={(date) => setCustomStartDate(date)}
               dateFormat="yyyy-MM-dd"
-              className="border p-2 rounded-md w-full"
+              className="border p-2 rounded-md w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
             />
           </div>
           <div>
-            <p className="text-sm text-gray-500">End Date</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">End Date</p>
             <DatePicker
               selected={customEndDate}
               onChange={(date) => setCustomEndDate(date)}
               dateFormat="yyyy-MM-dd"
-              className="border p-2 rounded-md w-full"
+              className="border p-2 rounded-md w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
             />
           </div>
         </div>

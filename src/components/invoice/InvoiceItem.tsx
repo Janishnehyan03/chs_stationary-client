@@ -60,38 +60,37 @@ const InvoiceItem: React.FC<InvoiceItemProps> = ({
   ]);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 transition-all hover:shadow-md">
-      <div className="p-6 border-b border-gray-100">
-        <div className="flex justify-between items-start">
+    <div className="bg-gray-800 text-white rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all hover:shadow-lg p-6">
+      <div className="border-b border-gray-700 pb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <div>
-            <h3 className="font-bold text-lg text-gray-900">
-              {invoice.user?.name}
-            </h3>
+            <h3 className="font-bold text-lg">{invoice.user?.name}</h3>
             <div className="flex items-center gap-2 mt-1">
-              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                {invoice.user?.role === "student" &&
-                  "ID:" + invoice.user?.admissionNumber}
-              </span>
+              {invoice.user?.role === "student" && (
+                <span className="bg-blue-900 text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded">
+                  ID: {invoice.user?.admissionNumber}
+                </span>
+              )}
               {invoice.user?.class && (
-                <span className="text-gray-500 text-xs">
+                <span className="text-gray-400 text-xs">
                   {invoice.user.class.name} - {invoice.user.class.section}
                 </span>
               )}
             </div>
           </div>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end mt-3 sm:mt-0">
             <span
               className={`text-sm font-medium px-2.5 py-0.5 rounded-full ${
                 invoice.status === "paid"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
+                  ? "bg-green-900 text-green-300"
+                  : "bg-red-900 text-red-300"
               }`}
             >
               {invoice.status === "paid"
                 ? "Fully Paid"
                 : `₹${totalAmount.toLocaleString()}`}
             </span>
-            <span className="text-gray-500 text-xs mt-1">
+            <span className="text-gray-400 text-xs mt-1">
               {invoice.createdAt
                 ? new Date(invoice.createdAt).toLocaleDateString("en-IN", {
                     day: "numeric",
@@ -102,109 +101,109 @@ const InvoiceItem: React.FC<InvoiceItemProps> = ({
             </span>
           </div>
         </div>
+      </div>
 
-        <div className="mt-4 space-y-3">
+      <div className="mt-4 space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-green-400 font-medium">Student Balance:</span>
+          <span className="text-green-500 font-semibold">
+            ₹{studentBalance.toLocaleString()}
+          </span>
+        </div>
+        <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-green-600 font-medium">Student Balance:</span>
-            <span className="text-green-700 font-semibold">
-              ₹{studentBalance.toLocaleString()}
+            <span className="text-gray-300 font-medium">Total Amount:</span>
+            <span className="text-gray-100 font-semibold">
+              ₹{totalAmount.toLocaleString()}
             </span>
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600 font-medium">Total Amount:</span>
-              <span className="text-gray-900 font-semibold">
-                ₹{totalAmount.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600 font-medium">Paid Amount:</span>
-              <span className="text-gray-900 font-semibold">
-                ₹{paidAmount.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600 font-medium">Pending Amount:</span>
-              <span
-                className={`font-semibold ${
-                  pendingAmount > 0 ? "text-red-600" : "text-gray-900"
-                }`}
-              >
-                ₹{pendingAmount.toLocaleString()}
-              </span>
-            </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-300 font-medium">Paid Amount:</span>
+            <span className="text-gray-100 font-semibold">
+              ₹{paidAmount.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-300 font-medium">Pending Amount:</span>
+            <span
+              className={`font-semibold ${
+                pendingAmount > 0 ? "text-red-400" : "text-gray-100"
+              }`}
+            >
+              ₹{pendingAmount.toLocaleString()}
+            </span>
           </div>
         </div>
+      </div>
 
-        {showPayment && invoice.status !== "paid" && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value) || "")}
-              className="border p-2 rounded w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter amount to pay"
-              min="1"
-              max={pendingAmount}
-              disabled={useBalance}
-            />
-            {studentBalance > 0 && (
-              <div className="mt-2 flex items-center">
-                <input
-                  type="checkbox"
-                  id="useBalance"
-                  checked={useBalance}
-                  onChange={(e) => handleUseBalanceChange(e.target.checked)}
-                  className="mr-2"
-                />
-                <label htmlFor="useBalance" className="text-sm text-gray-700">
-                  Pay from student balance (₹{studentBalance.toLocaleString()}{" "}
-                  available)
-                </label>
-              </div>
+      {showPayment && invoice.status !== "paid" && (
+        <div className="mt-4 pt-4 border-t border-gray-700">
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value) || "")}
+            className="border p-2 rounded w-full bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter amount to pay"
+            min="1"
+            max={pendingAmount}
+            disabled={useBalance}
+          />
+          {studentBalance > 0 && (
+            <div className="mt-2 flex items-center">
+              <input
+                type="checkbox"
+                id="useBalance"
+                checked={useBalance}
+                onChange={(e) => handleUseBalanceChange(e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="useBalance" className="text-sm text-gray-300">
+                Pay from student balance (₹{studentBalance.toLocaleString()}{" "}
+                available)
+              </label>
+            </div>
+          )}
+          <button
+            onClick={onPayment}
+            className="w-full mt-2 bg-blue-600 text-white p-2 rounded flex items-center justify-center gap-2 disabled:opacity-50"
+            disabled={loading || !amount}
+          >
+            {loading ? (
+              "Processing..."
+            ) : (
+              <>
+                <CreditCard size={16} /> Pay Now
+              </>
             )}
-            <button
-              onClick={onPayment}
-              className="w-full mt-2 bg-blue-600 text-white p-2 rounded flex items-center justify-center gap-2 disabled:opacity-50"
-              disabled={loading || !amount}
-            >
-              {loading ? (
-                "Processing..."
-              ) : (
-                <>
-                  <CreditCard size={16} /> Pay Now
-                </>
-              )}
-            </button>
-          </div>
-        )}
-
-        <div className="flex items-center mt-4 gap-2">
-          {invoice.status !== "paid" && (
-            <button
-              onClick={() => setShowPayment(!showPayment)}
-              className="text-blue-600 hover:text-blue-800 transition-colors p-1.5 rounded hover:bg-blue-50 flex items-center gap-1"
-            >
-              {showPayment ? (
-                <>
-                  <EyeOff size={16} /> Hide
-                </>
-              ) : (
-                <>
-                  <CreditCard size={16} /> Pay Invoice
-                </>
-              )}
-            </button>
-          )}
-          {invoice.status !== "paid" && (
-            <button
-              onClick={() => setEditingInvoice(invoice)}
-              className="text-blue-600 hover:text-blue-800 transition-colors p-1.5 rounded hover:bg-blue-50"
-            >
-              <Pencil size={16} />
-            </button>
-          )}
+          </button>
         </div>
+      )}
+
+      <div className="flex items-center mt-4 gap-2">
+        {invoice.status !== "paid" && (
+          <button
+            onClick={() => setShowPayment(!showPayment)}
+            className="text-blue-400 hover:text-blue-500 transition-colors p-1.5 rounded hover:bg-blue-900 flex items-center gap-1"
+          >
+            {showPayment ? (
+              <>
+                <EyeOff size={16} /> Hide
+              </>
+            ) : (
+              <>
+                <CreditCard size={16} /> Pay Invoice
+              </>
+            )}
+          </button>
+        )}
+        {invoice.status !== "paid" && (
+          <button
+            onClick={() => setEditingInvoice(invoice)}
+            className="text-blue-400 hover:text-blue-500 transition-colors p-1.5 rounded hover:bg-blue-900"
+          >
+            <Pencil size={16} />
+          </button>
+        )}
       </div>
     </div>
   );

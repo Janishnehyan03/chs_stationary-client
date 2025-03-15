@@ -7,130 +7,161 @@ import {
   User,
   Users,
   LogOut,
+  Menu,
+  X,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(window.innerWidth >= 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isDarkMode, setIsDarkMode] = useState(
+    localStorage.getItem("darkMode") === "true"
+  );
 
+  console.log(isDarkMode);
   // Logout function
   const handleLogout = () => {
-    // Clear localStorage (or sessionStorage)
-    localStorage.clear(); // Clears all stored data
-    // Alternatively, you can remove specific items:
-    // localStorage.removeItem("authToken");
-    // localStorage.removeItem("user");
-
-    // Redirect to the login page
+    localStorage.clear();
     navigate("/login");
   };
 
+  // Sidebar toggle function
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem("darkMode", newDarkMode.toString());
+    if (newDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
+
+  // Close sidebar on outside click (mobile only)
+  useEffect(() => {
+    const handleOutsideClick = (event: any) => {
+      if (isOpen && isMobile && !event.target.closest("#sidebar")) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isOpen, isMobile]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsOpen(window.innerWidth >= 768); // Auto open on larger screens
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Set dark mode on initial load
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDarkMode]);
+
   return (
-    <div className="w-64 bg-white shadow-xl p-6 flex flex-col fixed h-screen">
-      <Link to="/" className="flex items-center space-x-3 mb-8">
-        <div className="flex items-center space-x-4 mb-8">
+    <div className="relative">
+      {/* Sidebar Toggle Button (Mobile) */}
+      <button
+        onClick={toggleSidebar}
+        className="md:hidden p-2 fixed top-4 right-4 bg-white dark:bg-gray-900 dark:text-white shadow-lg rounded-full z-50"
+      >
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Overlay (Mobile) */}
+      {isOpen && isMobile && (
+        <div
+          className="fixed inset-0 bg-black opacity-50 z-40"
+          onClick={toggleSidebar}
+        ></div>
+      )}
+
+      {/* Sidebar */}
+      <div
+        id="sidebar"
+        className={`fixed h-screen bg-white dark:bg-gray-900 shadow-xl p-6 flex flex-col transition-all duration-300 ease-in-out z-50
+          ${isOpen ? "translate-x-0 w-64" : "-translate-x-full"} 
+          md:translate-x-0 md:w-64`}
+      >
+        {/* Logo & Title */}
+        <Link to="/" className="flex items-center space-x-4 mb-8">
           <img
             src="/android-chrome-192x192.png"
             alt="Logo"
-            className="w-16 h-16 rounded-full shadow-md"
+            className="w-12 h-12 rounded-full shadow-md"
           />
-          <h1 className="text-xl font-semibold text-gray-800">Admin Panel</h1>
-        </div>
-      </Link>
-      <nav className="flex-1 overflow-y-auto">
-        <ul className="space-y-4">
-          <li>
-            <Link
-              to="/"
-              className={`flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium p-3 rounded-lg ${
-                location.pathname === "/" ? "bg-blue-100" : "hover:bg-blue-100"
-              }`}
-            >
-              <Home size={20} /> <span>Home</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/invoice"
-              className={`flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium p-3 rounded-lg ${
-                location.pathname === "/invoice"
-                  ? "bg-blue-100"
-                  : "hover:bg-blue-100"
-              }`}
-            >
-              <ShoppingBag size={20} /> <span>Invoice</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/products"
-              className={`flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium p-3 rounded-lg ${
-                location.pathname === "/products"
-                  ? "bg-blue-100"
-                  : "hover:bg-blue-100"
-              }`}
-            >
-              <Package size={20} /> <span>Products</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/users"
-              className={`flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium p-3 rounded-lg ${
-                location.pathname === "/users"
-                  ? "bg-blue-100"
-                  : "hover:bg-blue-100"
-              }`}
-            >
-              <Users size={20} /> <span>Users</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/students"
-              className={`flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium p-3 rounded-lg ${
-                location.pathname === "/students"
-                  ? "bg-blue-100"
-                  : "hover:bg-blue-100"
-              }`}
-            >
-              <User size={20} /> <span>Students</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/teachers"
-              className={`flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium p-3 rounded-lg ${
-                location.pathname === "/teachers"
-                  ? "bg-blue-100"
-                  : "hover:bg-blue-100"
-              }`}
-            >
-              <TeachersIcon size={20} /> <span>Teachers</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/classes"
-              className={`flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium p-3 rounded-lg ${
-                location.pathname === "/classes"
-                  ? "bg-blue-100"
-                  : "hover:bg-blue-100"
-              }`}
-            >
-              <BookOpen size={20} /> <span>Classes</span>
-            </Link>
-          </li>
-        </ul>
-      </nav>
-      {/* Logout Button */}
-      <button
-        onClick={handleLogout}
-        className="flex items-center space-x-3 text-gray-700 hover:text-red-600 font-medium p-3 rounded-lg hover:bg-red-100 mt-auto"
-      >
-        <LogOut size={20} /> <span>Logout</span>
-      </button>
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+            Admin Panel
+          </h1>
+        </Link>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto">
+          <ul className="space-y-3">
+            {[
+              { to: "/", label: "Home", icon: Home },
+              { to: "/invoice", label: "Invoice", icon: ShoppingBag },
+              { to: "/products", label: "Products", icon: Package },
+              { to: "/users", label: "Users", icon: Users },
+              { to: "/students", label: "Students", icon: User },
+              { to: "/teachers", label: "Teachers", icon: TeachersIcon },
+              { to: "/classes", label: "Classes", icon: BookOpen },
+            ].map(({ to, label, icon: Icon }) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center space-x-3 text-gray-700 dark:text-gray-300 font-medium p-3 rounded-lg transition-all 
+                    ${
+                      location.pathname === to
+                        ? "bg-blue-500 text-white dark:bg-blue-600"
+                        : "hover:bg-blue-100 dark:hover:bg-gray-700"
+                    }`}
+                >
+                  <Icon size={20} /> <span>{label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Dark Mode Toggle Button */}
+        <button
+          onClick={toggleDarkMode}
+          className="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 font-medium p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 mt-4"
+        >
+          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
+        </button>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:text-red-600 font-medium p-3 rounded-lg hover:bg-red-100 dark:hover:bg-red-700 mt-4"
+        >
+          <LogOut size={20} /> <span>Logout</span>
+        </button>
+      </div>
     </div>
   );
 }

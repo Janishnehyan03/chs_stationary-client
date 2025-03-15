@@ -94,33 +94,38 @@ const InvoicePage = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-8">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8 ">
+      {/* Invoice Header */}
       <InvoiceHeader
         showInvoiceForm={showInvoiceForm}
         setShowInvoiceForm={setShowInvoiceForm}
       />
 
-      {/* Invoice Creation Form */}
+      {/* Invoice Form - Full width on mobile, Side-by-side on larger screens */}
+
       {showInvoiceForm && (
-        <CreateInvoiceForm
-          student={user}
-          addProduct={addProduct}
-          items={items}
-          updateQuantity={updateQuantity}
-          removeItem={removeItem}
-          totalAmount={totalAmount}
-          submitInvoice={submitInvoice}
-          setStudent={setUser}
-        />
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md dark:shadow-lg p-4 sm:p-6 transition-colors">
+          <CreateInvoiceForm
+            student={user}
+            addProduct={addProduct}
+            items={items}
+            updateQuantity={updateQuantity}
+            removeItem={removeItem}
+            totalAmount={totalAmount}
+            submitInvoice={submitInvoice}
+            setStudent={setUser}
+          />
+        </div>
       )}
 
       {/* Latest Invoices Section */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-xl font-medium text-gray-800">Latest Invoices</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md dark:shadow-lg overflow-hidden transition-colors">
+        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg sm:text-xl font-medium text-gray-800 dark:text-gray-200">
+            Latest Invoices
+          </h2>
         </div>
-
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <LatestInvoices newDataAdded={newDataAdded} />
         </div>
       </div>
