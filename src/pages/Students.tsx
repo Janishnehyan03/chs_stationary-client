@@ -99,6 +99,7 @@ export default function StudentsPage() {
           isOpen={isImportOpen}
           onClose={() => setIsImportOpen(false)}
           classes={classes}
+          fetchStudents={fetchStudents}
         />
       )}
     </div>

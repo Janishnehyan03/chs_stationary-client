@@ -7,6 +7,7 @@ interface ImportStudentsProps {
   isOpen: boolean;
   onClose: () => void;
   classes: { _id: string; name: string; section: string }[];
+  fetchStudents: () => void;
 }
 
 interface Student {
@@ -19,6 +20,7 @@ export default function ImportStudents({
   isOpen,
   onClose,
   classes: classes,
+  fetchStudents
 }: ImportStudentsProps) {
   const [uploading, setUploading] = useState(false);
   const [selectedClass, setSelectedClass] = useState("");
@@ -82,10 +84,11 @@ export default function ImportStudents({
     setUploading(true);
 
     try {
-      await Axios.post("/students/bulk", { students });
+      await Axios.post("/students/bulk", students);
       alert("Students imported successfully!");
       setStudents([]); // Clear students after successful upload
       onClose(); // Close modal after successful upload
+      fetchStudents(); // Fetch students after successful upload
     } catch (error) {
       console.error("Error importing students:", error);
       alert("Failed to import students.");
