@@ -33,7 +33,7 @@ export function UserForm({
     if (newUser.permissions) {
       // Convert newUser.permissions to an array of strings (permission IDs)
       const userPermissionIds = newUser.permissions.map((p: any) =>
-        typeof p === "string" ? p : p._id
+        typeof p === "string" ? p : p?._id
       );
       setSelectedPermissions(userPermissionIds);
     } else {

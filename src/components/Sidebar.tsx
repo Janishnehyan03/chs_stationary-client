@@ -23,18 +23,16 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(window.innerWidth >= 768);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isDarkMode, setIsDarkMode] = useState(
-    localStorage.getItem("darkMode") === "true"
-  );
 
-  const canCreateUsers=useHasPermission(PERMISSIONS.users.create);
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+
+  const canCreateUsers = useHasPermission(PERMISSIONS.users.create);
   const canReadClasses = useHasPermission(PERMISSIONS.class.read);
   const canReadStudents = useHasPermission(PERMISSIONS.students.read);
   const canReadTeachers = useHasPermission(PERMISSIONS.teachers.read);
   const canReadPermissions = useHasPermission(PERMISSIONS.permissions.read);
   const canReadProducts = useHasPermission(PERMISSIONS.products.read);
   const canReadInvoice = useHasPermission(PERMISSIONS.invoice.read);
-
 
   // Logout function
   const handleLogout = () => {
@@ -44,18 +42,6 @@ export default function Sidebar() {
 
   // Sidebar toggle function
   const toggleSidebar = () => setIsOpen(!isOpen);
-
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    localStorage.setItem("darkMode", newDarkMode.toString());
-    if (newDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
 
   // Close sidebar on outside click (mobile only)
   useEffect(() => {
@@ -81,14 +67,22 @@ export default function Sidebar() {
   }, []);
 
   // Set dark mode on initial load
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
+  // useEffect(() => {
+  //   if (isDarkMode) {
+  //     document.documentElement.classList.add("dark");
+  //   } else {
+  //     document.documentElement.classList.remove("dark");
+  //   }
+  // }, [isDarkMode]);
 
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
   return (
     <div className="relative">
       {/* Sidebar Toggle Button (Mobile) */}
@@ -131,41 +125,76 @@ export default function Sidebar() {
           <ul className="space-y-3">
             {[
               { to: "/", label: "Home", icon: Home, permission: true },
-              { to: "/invoice", label: "Invoice", icon: ShoppingBag, permission: canReadInvoice },
-              { to: "/products", label: "Products", icon: Package, permission: canReadProducts },
-              { to: "/users", label: "Users", icon: Users, permission: canCreateUsers },
-              { to: "/students", label: "Students", icon: User, permission: canReadStudents },
-              { to: "/teachers", label: "Teachers", icon: TeachersIcon, permission: canReadTeachers },
-              { to: "/classes", label: "Classes", icon: BookOpen, permission: canReadClasses },
-              { to: "/permissions", label: "Permissions", icon: Shield, permission: canReadPermissions },
+              {
+                to: "/invoice",
+                label: "Invoice",
+                icon: ShoppingBag,
+                permission: canReadInvoice,
+              },
+              {
+                to: "/products",
+                label: "Products",
+                icon: Package,
+                permission: canReadProducts,
+              },
+              {
+                to: "/users",
+                label: "Users",
+                icon: Users,
+                permission: canCreateUsers,
+              },
+              {
+                to: "/students",
+                label: "Students",
+                icon: User,
+                permission: canReadStudents,
+              },
+              {
+                to: "/teachers",
+                label: "Teachers",
+                icon: TeachersIcon,
+                permission: canReadTeachers,
+              },
+              {
+                to: "/classes",
+                label: "Classes",
+                icon: BookOpen,
+                permission: canReadClasses,
+              },
+              {
+                to: "/permissions",
+                label: "Permissions",
+                icon: Shield,
+                permission: canReadPermissions,
+              },
             ]
               .filter(({ permission }) => permission)
               .map(({ to, label, icon: Icon }) => (
-              <li key={to}>
-                <Link
-                to={to}
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center space-x-3 text-gray-700 dark:text-gray-300 font-medium p-3 rounded-lg transition-all 
+                <li key={to}>
+                  <Link
+                    to={to}
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center space-x-3 text-gray-700 dark:text-gray-300 font-medium p-3 rounded-lg transition-all 
                   ${
-                  location.pathname === to
-                    ? "bg-blue-500 text-white dark:bg-blue-600"
-                    : "hover:bg-blue-100 dark:hover:bg-gray-700"
+                    location.pathname === to
+                      ? "bg-blue-500 text-white dark:bg-blue-600"
+                      : "hover:bg-blue-100 dark:hover:bg-gray-700"
                   }`}
-                >
-                <Icon size={20} /> <span>{label}</span>
-                </Link>
-              </li>
+                  >
+                    <Icon size={20} /> <span>{label}</span>
+                  </Link>
+                </li>
               ))}
           </ul>
         </nav>
 
         {/* Dark Mode Toggle Button */}
         <button
-          onClick={toggleDarkMode}
+          onClick={toggleTheme}
           className="flex items-center space-x-3 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 font-medium p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 mt-4"
         >
-          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          <span>{theme === "dark" ? "Light" : "Dark"}</span>
         </button>
 
         {/* Logout Button */}

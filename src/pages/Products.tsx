@@ -107,15 +107,15 @@ export default function ProductsPage() {
       product.productCode.toLowerCase().includes(search.toLowerCase())
   );
   const canCreateProduct = useHasPermission(PERMISSIONS.products.create);
- 
+
   return (
-    <div className="p-8 bg-gray-900 min-h-screen">
-      <div className="max-w-6xl mx-auto bg-gray-800 p-8 rounded-2xl shadow-xl">
+    <div className="p-8 bg-white dark:bg-gray-950 min-h-screen text-gray-900 dark:text-gray-300">
+      <div className="max-w-6xl mx-auto bg-gray-100 dark:bg-gray-900 p-8 rounded-2xl shadow-xl">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <input
             type="text"
             placeholder="Search products..."
-            className="border border-gray-600 bg-gray-700 text-white px-4 py-2 rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-teal-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -125,7 +125,7 @@ export default function ProductsPage() {
                 resetForm();
                 setIsModalOpen(true);
               }}
-              className="bg-teal-600 hover:bg-teal-500 cursor-pointer text-white px-6 py-2 rounded-lg flex items-center gap-2 transition shadow-md"
+              className="bg-teal-600 hover:bg-teal-500 dark:bg-teal-700 dark:hover:bg-teal-600 cursor-pointer text-white px-6 py-2 rounded-lg flex items-center gap-2 transition shadow-md"
             >
               <PlusCircle size={20} /> Add Product
             </button>
@@ -135,7 +135,7 @@ export default function ProductsPage() {
         <ProductTable
           products={filteredProducts}
           isLoading={isLoading}
-          onEditClick={handleEditClick} // Pass edit handler to the table
+          onEditClick={handleEditClick}
         />
       </div>
 
@@ -143,12 +143,12 @@ export default function ProductsPage() {
         <ProductForm
           newProduct={newProduct}
           onInputChange={handleInputChange}
-          onSaveProduct={isEditing ? editProduct : addProduct} // Use editProduct or addProduct based on mode
+          onSaveProduct={isEditing ? editProduct : addProduct}
           onClose={() => {
             resetForm();
             setIsModalOpen(false);
           }}
-          isEditing={isEditing} // Pass isEditing flag to the form
+          isEditing={isEditing}
         />
       )}
     </div>
