@@ -1,4 +1,6 @@
 import { Plus, X } from "lucide-react";
+import { useHasPermission } from "../../utils/hooks/useHasPermission";
+import { PERMISSIONS } from "../../utils/permissions";
 
 interface InvoiceHeaderProps {
   showInvoiceForm: boolean;
@@ -9,6 +11,7 @@ const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({
   showInvoiceForm,
   setShowInvoiceForm,
 }) => {
+  const canCreateInvoice = useHasPermission(PERMISSIONS.invoice.create);
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <div>
@@ -21,13 +24,17 @@ const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({
       </div>
 
       {!showInvoiceForm ? (
-        <button
-          onClick={() => setShowInvoiceForm(true)}
-          className="flex items-center cursor-pointer gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors shadow-sm"
-        >
-          <Plus size={18} className="text-white" />
-          Create New Invoice
-        </button>
+        <>
+          {canCreateInvoice && (
+            <button
+              onClick={() => setShowInvoiceForm(true)}
+              className="flex items-center cursor-pointer gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors shadow-sm"
+            >
+              <Plus size={18} className="text-white" />
+              Create New Invoice
+            </button>
+          )}
+        </>
       ) : (
         <button
           onClick={() => setShowInvoiceForm(false)}

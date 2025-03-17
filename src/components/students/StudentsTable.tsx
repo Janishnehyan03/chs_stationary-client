@@ -13,6 +13,8 @@ import AddStudentModal from "./AddStudentModal"; // Adjust the import path
 import { User } from "../../utils/types/types";
 import { downloadInvoicePDF } from "../../utils/services/download-invoice.service";
 import InvoiceOfStudent from "../invoice/InvoiceOfStudent";
+import { useHasPermission } from "../../utils/hooks/useHasPermission";
+import { PERMISSIONS } from "../../utils/permissions";
 
 interface ClassOption {
   _id: string;
@@ -52,6 +54,9 @@ export default function StudentsTable({
     setSelectedStudent(student); // Set the selected student
     setShowInvoice(true); // Show the invoice modal
   };
+  const canCreateStudents = useHasPermission(PERMISSIONS.students.create);
+  const canUpdateStudents = useHasPermission(PERMISSIONS.students.update);
+  const canDeleteStudents = useHasPermission(PERMISSIONS.students.delete);
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg overflow-hidden">
@@ -89,12 +94,14 @@ export default function StudentsTable({
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 pointer-events-none"
               />
             </div>
-            <button
-              className="px-4 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors"
-              onClick={() => setIsAddModalOpen(true)}
-            >
-              Add Student
-            </button>
+            {canCreateStudents && (
+              <button
+                className="px-4 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors"
+                onClick={() => setIsAddModalOpen(true)}
+              >
+                Add Student
+              </button>
+            )}
             {selectedClass && (
               <button
                 className="px-4 py-2.5 flex space-x-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors"
@@ -171,7 +178,8 @@ export default function StudentsTable({
                   {/* Class & Section */}
                   <td className="px-6 py-4">
                     <p className="inline-flex items-center py-3 px-4 text-sm font-medium text-indigo-900 bg-indigo-50 dark:text-indigo-800 rounded">
-                      {student.class?.name}{student.class?.section}
+                      {student.class?.name}
+                      {student.class?.section}
                     </p>
                   </td>
 
@@ -215,23 +223,27 @@ export default function StudentsTable({
                   {/* Action Buttons: Edit & Delete */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <button
-                        className="p-2 rounded-md cursor-pointer text-gray-500 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors"
-                        title="Edit Student"
-                        onClick={() => {
-                          setSelectedStudent(student);
-                          setIsEditModalOpen(true);
-                        }}
-                      >
-                        <Pencil size={18} />
-                      </button>
-                      <button
-                        className="p-2 rounded-md cursor-pointer text-gray-500 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900 transition-colors"
-                        onClick={() => onDelete(student._id)}
-                        title="Delete Student"
-                      >
-                        <Trash size={18} />
-                      </button>
+                      {canUpdateStudents && (
+                        <button
+                          className="p-2 rounded-md cursor-pointer text-gray-500 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors"
+                          title="Edit Student"
+                          onClick={() => {
+                            setSelectedStudent(student);
+                            setIsEditModalOpen(true);
+                          }}
+                        >
+                          <Pencil size={18} />
+                        </button>
+                      )}
+                      {canDeleteStudents && (
+                        <button
+                          className="p-2 rounded-md cursor-pointer text-gray-500 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900 transition-colors"
+                          onClick={() => onDelete(student._id)}
+                          title="Delete Student"
+                        >
+                          <Trash size={18} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

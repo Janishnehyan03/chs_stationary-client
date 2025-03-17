@@ -2,6 +2,8 @@ import { CreditCard, EyeOff, Pencil } from "lucide-react";
 import { useCallback, useState } from "react";
 import { handlePayment } from "../../utils/services/invoice.service";
 import { Invoice } from "../../utils/types/types";
+import { PERMISSIONS } from "../../utils/permissions";
+import { useHasPermission } from "../../utils/hooks/useHasPermission";
 interface InvoiceItemProps {
   invoice: Invoice;
   setEditingInvoice: (invoice: Invoice | null) => void;
@@ -30,6 +32,8 @@ const InvoiceItem: React.FC<InvoiceItemProps> = ({
   const pendingAmount = Math.max(totalAmount - paidAmount, 0);
   const studentBalance = invoice.user?.balance || 0;
 
+  const canEditInvoice = useHasPermission(PERMISSIONS.invoice.update);
+  const canPayInvoice = useHasPermission(PERMISSIONS.invoice.payment);
   // Auto-set amount when useBalance is checked
   const handleUseBalanceChange = (checked: boolean) => {
     setUseBalance(checked);
@@ -163,19 +167,21 @@ const InvoiceItem: React.FC<InvoiceItemProps> = ({
               </label>
             </div>
           )}
-          <button
-            onClick={onPayment}
-            className="w-full mt-2 bg-blue-600 text-white p-2 rounded flex items-center justify-center gap-2 disabled:opacity-50"
-            disabled={loading || !amount}
-          >
-            {loading ? (
-              "Processing..."
-            ) : (
-              <>
-                <CreditCard size={16} /> Pay Now
-              </>
-            )}
-          </button>
+          {canPayInvoice && (
+            <button
+              onClick={onPayment}
+              className="w-full mt-2 bg-blue-600 text-white p-2 rounded flex items-center justify-center gap-2 disabled:opacity-50"
+              disabled={loading || !amount}
+            >
+              {loading ? (
+                "Processing..."
+              ) : (
+                <>
+                  <CreditCard size={16} /> Pay Now
+                </>
+              )}
+            </button>
+          )}
         </div>
       )}
 
@@ -191,18 +197,26 @@ const InvoiceItem: React.FC<InvoiceItemProps> = ({
               </>
             ) : (
               <>
-                <CreditCard size={16} /> Pay Invoice
+                {canPayInvoice && (
+                  <>
+                    <CreditCard size={16} /> Pay Now
+                  </>
+                )}
               </>
             )}
           </button>
         )}
         {invoice.status !== "paid" && (
-          <button
-            onClick={() => setEditingInvoice(invoice)}
-            className="text-blue-400 hover:text-blue-500 transition-colors p-1.5 rounded hover:bg-blue-900"
-          >
-            <Pencil size={16} />
-          </button>
+          <>
+            {canEditInvoice && (
+              <button
+                onClick={() => setEditingInvoice(invoice)}
+                className="text-blue-400 hover:text-blue-500 transition-colors p-1.5 rounded hover:bg-blue-900"
+              >
+                <Pencil size={16} />
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

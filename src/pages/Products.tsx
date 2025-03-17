@@ -4,6 +4,8 @@ import Axios from "../Axios";
 import { ProductTable } from "../components/products/ProductTable";
 import { ProductForm } from "../components/products/ProductForm";
 import { Product } from "../utils/types/types";
+import { useHasPermission } from "../utils/hooks/useHasPermission";
+import { PERMISSIONS } from "../utils/permissions";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -99,53 +101,56 @@ export default function ProductsPage() {
     setIsModalOpen(true);
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.title.toLowerCase().includes(search.toLowerCase()) ||
-    product.productCode.toLowerCase().includes(search.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.title.toLowerCase().includes(search.toLowerCase()) ||
+      product.productCode.toLowerCase().includes(search.toLowerCase())
   );
-
+  const canCreateProduct = useHasPermission(PERMISSIONS.products.create);
+ 
   return (
     <div className="p-8 bg-gray-900 min-h-screen">
-    <div className="max-w-6xl mx-auto bg-gray-800 p-8 rounded-2xl shadow-xl">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <input
-          type="text"
-          placeholder="Search products..."
-          className="border border-gray-600 bg-gray-700 text-white px-4 py-2 rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+      <div className="max-w-6xl mx-auto bg-gray-800 p-8 rounded-2xl shadow-xl">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+          <input
+            type="text"
+            placeholder="Search products..."
+            className="border border-gray-600 bg-gray-700 text-white px-4 py-2 rounded-lg w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {canCreateProduct && (
+            <button
+              onClick={() => {
+                resetForm();
+                setIsModalOpen(true);
+              }}
+              className="bg-teal-600 hover:bg-teal-500 cursor-pointer text-white px-6 py-2 rounded-lg flex items-center gap-2 transition shadow-md"
+            >
+              <PlusCircle size={20} /> Add Product
+            </button>
+          )}
+        </div>
+
+        <ProductTable
+          products={filteredProducts}
+          isLoading={isLoading}
+          onEditClick={handleEditClick} // Pass edit handler to the table
         />
-        <button
-          onClick={() => {
-            resetForm();
-            setIsModalOpen(true);
-          }}
-          className="bg-teal-600 hover:bg-teal-500 cursor-pointer text-white px-6 py-2 rounded-lg flex items-center gap-2 transition shadow-md"
-        >
-          <PlusCircle size={20} /> Add Product
-        </button>
       </div>
-  
-      <ProductTable
-        products={filteredProducts}
-        isLoading={isLoading}
-        onEditClick={handleEditClick} // Pass edit handler to the table
-      />
+
+      {isModalOpen && (
+        <ProductForm
+          newProduct={newProduct}
+          onInputChange={handleInputChange}
+          onSaveProduct={isEditing ? editProduct : addProduct} // Use editProduct or addProduct based on mode
+          onClose={() => {
+            resetForm();
+            setIsModalOpen(false);
+          }}
+          isEditing={isEditing} // Pass isEditing flag to the form
+        />
+      )}
     </div>
-  
-    {isModalOpen && (
-      <ProductForm
-        newProduct={newProduct}
-        onInputChange={handleInputChange}
-        onSaveProduct={isEditing ? editProduct : addProduct} // Use editProduct or addProduct based on mode
-        onClose={() => {
-          resetForm();
-          setIsModalOpen(false);
-        }}
-        isEditing={isEditing} // Pass isEditing flag to the form
-      />
-    )}
-  </div>
-  
   );
 }

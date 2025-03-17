@@ -1,9 +1,12 @@
-import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import Axios from "../Axios";
-
-interface User {
-  role: "admin" | "user" | null;
-}
+import { User } from "../utils/types/types";
 
 interface UserContextProps {
   user: User | null;
@@ -11,7 +14,9 @@ interface UserContextProps {
   logout: () => void;
 }
 
-export const UserContext = createContext<UserContextProps | undefined>(undefined);
+export const UserContext = createContext<UserContextProps | undefined>(
+  undefined
+);
 
 interface UserProviderProps {
   children: ReactNode;
@@ -33,7 +38,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       setUser(response.data);
       localStorage.setItem("user", JSON.stringify(response.data));
     } catch (error: any) {
-      console.error("Failed to fetch user profile:", error?.response?.data || error.message);
+      console.error(
+        "Failed to fetch user profile:",
+        error?.response?.data || error.message
+      );
       logout();
     }
   };
@@ -43,6 +51,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const token = localStorage.getItem("token");
     if (token && !user) {
       fetchUser(token);
+    } else if (token && user) {
+      fetchUser(token);
+    } else {
+      logout();
     }
   }, []);
 

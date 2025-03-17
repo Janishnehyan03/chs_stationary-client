@@ -5,6 +5,8 @@ import CreateInvoiceForm from "../components/invoice/CreateInvoiceForm";
 import InvoiceHeader from "../components/invoice/InvoiceHeader";
 import LatestInvoices from "../components/invoice/LatestInvoices";
 import { InvoiceItem } from "../utils/types/types";
+import { useHasPermission } from "../utils/hooks/useHasPermission";
+import { PERMISSIONS } from "../utils/permissions";
 
 interface User {
   _id: string;
@@ -24,6 +26,9 @@ const InvoicePage = () => {
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [newDataAdded, setNewDataAdded] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false); // State to toggle form visibility
+
+  const canCreateInvoice = useHasPermission(PERMISSIONS.invoice.create);
+  const canReadInvoice = useHasPermission(PERMISSIONS.invoice.read);
 
   // Add product to invoice
   const addProduct = (product: Product) => {
@@ -105,16 +110,18 @@ const InvoicePage = () => {
 
       {showInvoiceForm && (
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md dark:shadow-lg p-4 sm:p-6 transition-colors">
-          <CreateInvoiceForm
-            student={user}
-            addProduct={addProduct}
-            items={items}
-            updateQuantity={updateQuantity}
-            removeItem={removeItem}
-            totalAmount={totalAmount}
-            submitInvoice={submitInvoice}
-            setStudent={setUser}
-          />
+          {canCreateInvoice && (
+            <CreateInvoiceForm
+              student={user}
+              addProduct={addProduct}
+              items={items}
+              updateQuantity={updateQuantity}
+              removeItem={removeItem}
+              totalAmount={totalAmount}
+              submitInvoice={submitInvoice}
+              setStudent={setUser}
+            />
+          )}
         </div>
       )}
 
@@ -126,7 +133,7 @@ const InvoicePage = () => {
           </h2>
         </div>
         <div className="p-4 sm:p-6">
-          <LatestInvoices newDataAdded={newDataAdded} />
+          {canReadInvoice && <LatestInvoices newDataAdded={newDataAdded} />}
         </div>
       </div>
     </div>

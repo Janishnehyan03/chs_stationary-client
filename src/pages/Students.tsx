@@ -5,6 +5,8 @@ import AddStudentModal from "../components/students/AddStudentModal";
 import ImportStudentsModal from "../components/students/ImportStudentsModal";
 import StudentsTable from "../components/students/StudentsTable";
 import { User } from "../utils/types/types";
+import { useHasPermission } from "../utils/hooks/useHasPermission";
+import { PERMISSIONS } from "../utils/permissions";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<User[]>([]);
@@ -54,6 +56,9 @@ export default function StudentsPage() {
     fetchStudents();
   }, []);
 
+  const canCreateStudents = useHasPermission(PERMISSIONS.students.create);
+  const canReadStudents = useHasPermission(PERMISSIONS.students.read);
+
   return (
     <div className="p-6 bg-green-50 dark:bg-gray-900 min-h-screen">
       <div className="max-w-5xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
@@ -65,21 +70,25 @@ export default function StudentsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button
-            className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center gap-2 transition"
-            onClick={() => setIsImportOpen(true)}
-          >
-            <Upload size={20} /> Import Students
-          </button>
+          {canCreateStudents && (
+            <button
+              className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center gap-2 transition"
+              onClick={() => setIsImportOpen(true)}
+            >
+              <Upload size={20} /> Import Students
+            </button>
+          )}
         </div>
 
-        <StudentsTable
-          students={students}
-          search={search}
-          onDelete={deleteStudent}
-          classes={classes}
-          fetchStudents={fetchStudents}
-        />
+        {canReadStudents && (
+          <StudentsTable
+            students={students}
+            search={search}
+            onDelete={deleteStudent}
+            classes={classes}
+            fetchStudents={fetchStudents}
+          />
+        )}
       </div>
 
       {/* Modals */}

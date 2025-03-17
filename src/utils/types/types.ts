@@ -37,6 +37,7 @@ export interface Teacher {
 export interface User {
   _id: string;
   name: string;
+  password: string;
   admissionNumber: string;
   class?: Class;
   dueAmount: number;
@@ -45,6 +46,12 @@ export interface User {
   phone: string;
   email: string;
   invoices: Invoice[];
+  permissions: Permission[];
+}
+export interface Permission {
+  _id?: string;
+  permissionTitle: string;
+  description: string;
 }
 
 export interface Product {

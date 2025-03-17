@@ -1,5 +1,7 @@
 import { Loader2, Package, IndianRupee, AlertCircle, Edit } from "lucide-react";
 import { Product } from "../../utils/types/types";
+import { useHasPermission } from "../../utils/hooks/useHasPermission";
+import { PERMISSIONS } from "../../utils/permissions";
 
 interface ProductTableProps {
   products: Product[];
@@ -12,6 +14,8 @@ export function ProductTable({
   isLoading,
   onEditClick,
 }: ProductTableProps) {
+  const canUpdateProduct = useHasPermission(PERMISSIONS.products.update);
+  const canDeleteProduct = useHasPermission(PERMISSIONS.products.delete);
   return (
     <div className="overflow-hidden rounded-2xl shadow-lg border border-gray-700">
       <div className="overflow-x-auto">
@@ -26,7 +30,7 @@ export function ProductTable({
                 "Product Code",
                 "Wholesale Price",
                 "Stock",
-                "Actions",
+                (canDeleteProduct || canUpdateProduct) && "Actions",
               ].map((header, idx) => (
                 <th
                   key={idx}
@@ -120,14 +124,16 @@ export function ProductTable({
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 md:px-6 md:py-4">
-                    <button
-                      onClick={() => onEditClick(product)}
-                      className="text-teal-400 hover:text-teal-300 transition-colors"
-                    >
-                      <Edit size={18} />
-                    </button>
-                  </td>
+                  {canUpdateProduct && (
+                    <td className="px-4 py-3 md:px-6 md:py-4">
+                      <button
+                        onClick={() => onEditClick(product)}
+                        className="text-teal-400 hover:text-teal-300 transition-colors"
+                      >
+                        <Edit size={18} />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

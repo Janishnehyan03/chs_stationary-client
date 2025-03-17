@@ -1,6 +1,8 @@
 import React from "react";
 import Axios from "../../Axios";
 import DeleteInvoiceButton from "./DeleteInvoiceButton"; // Import the new component
+import { PERMISSIONS } from "../../utils/permissions";
+import { useHasPermission } from "../../utils/hooks/useHasPermission";
 
 interface InvoiceDetailsProps {
   invoice: {
@@ -21,6 +23,8 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
     await Axios.delete(`/invoices/${id}`);
     window.location.reload(); // Reload the page after deletion
   };
+
+  const canDeleteInvoice = useHasPermission(PERMISSIONS.invoice.delete);
 
   return (
     <div className="p-4 border-t border-gray-700">
@@ -54,10 +58,12 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
       </div>
 
       <div className="mt-4 pt-4 border-t border-gray-700 flex justify-between gap-2">
-        <DeleteInvoiceButton
-          invoiceId={invoice._id}
-          onDelete={handleDeleteInvoice}
-        />
+        {canDeleteInvoice && (
+          <DeleteInvoiceButton
+            invoiceId={invoice._id}
+            onDelete={handleDeleteInvoice}
+          />
+        )}
       </div>
     </div>
   );

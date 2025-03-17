@@ -11,9 +11,12 @@ import {
   X,
   Moon,
   Sun,
+  Shield,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useHasPermission } from "../utils/hooks/useHasPermission";
+import { PERMISSIONS } from "../utils/permissions";
 
 export default function Sidebar() {
   const location = useLocation();
@@ -24,7 +27,15 @@ export default function Sidebar() {
     localStorage.getItem("darkMode") === "true"
   );
 
-  console.log(isDarkMode);
+  const canCreateUsers=useHasPermission(PERMISSIONS.users.create);
+  const canReadClasses = useHasPermission(PERMISSIONS.class.read);
+  const canReadStudents = useHasPermission(PERMISSIONS.students.read);
+  const canReadTeachers = useHasPermission(PERMISSIONS.teachers.read);
+  const canReadPermissions = useHasPermission(PERMISSIONS.permissions.read);
+  const canReadProducts = useHasPermission(PERMISSIONS.products.read);
+  const canReadInvoice = useHasPermission(PERMISSIONS.invoice.read);
+
+
   // Logout function
   const handleLogout = () => {
     localStorage.clear();
@@ -119,29 +130,32 @@ export default function Sidebar() {
         <nav className="flex-1 overflow-y-auto">
           <ul className="space-y-3">
             {[
-              { to: "/", label: "Home", icon: Home },
-              { to: "/invoice", label: "Invoice", icon: ShoppingBag },
-              { to: "/products", label: "Products", icon: Package },
-              { to: "/users", label: "Users", icon: Users },
-              { to: "/students", label: "Students", icon: User },
-              { to: "/teachers", label: "Teachers", icon: TeachersIcon },
-              { to: "/classes", label: "Classes", icon: BookOpen },
-            ].map(({ to, label, icon: Icon }) => (
+              { to: "/", label: "Home", icon: Home, permission: true },
+              { to: "/invoice", label: "Invoice", icon: ShoppingBag, permission: canReadInvoice },
+              { to: "/products", label: "Products", icon: Package, permission: canReadProducts },
+              { to: "/users", label: "Users", icon: Users, permission: canCreateUsers },
+              { to: "/students", label: "Students", icon: User, permission: canReadStudents },
+              { to: "/teachers", label: "Teachers", icon: TeachersIcon, permission: canReadTeachers },
+              { to: "/classes", label: "Classes", icon: BookOpen, permission: canReadClasses },
+              { to: "/permissions", label: "Permissions", icon: Shield, permission: canReadPermissions },
+            ]
+              .filter(({ permission }) => permission)
+              .map(({ to, label, icon: Icon }) => (
               <li key={to}>
                 <Link
-                  to={to}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center space-x-3 text-gray-700 dark:text-gray-300 font-medium p-3 rounded-lg transition-all 
-                    ${
-                      location.pathname === to
-                        ? "bg-blue-500 text-white dark:bg-blue-600"
-                        : "hover:bg-blue-100 dark:hover:bg-gray-700"
-                    }`}
+                to={to}
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center space-x-3 text-gray-700 dark:text-gray-300 font-medium p-3 rounded-lg transition-all 
+                  ${
+                  location.pathname === to
+                    ? "bg-blue-500 text-white dark:bg-blue-600"
+                    : "hover:bg-blue-100 dark:hover:bg-gray-700"
+                  }`}
                 >
-                  <Icon size={20} /> <span>{label}</span>
+                <Icon size={20} /> <span>{label}</span>
                 </Link>
               </li>
-            ))}
+              ))}
           </ul>
         </nav>
 

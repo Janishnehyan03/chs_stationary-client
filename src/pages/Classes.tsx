@@ -1,6 +1,8 @@
 import { Check, Edit, PlusCircle, Users, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import Axios from "../Axios";
+import { useHasPermission } from "../utils/hooks/useHasPermission";
+import { PERMISSIONS } from "../utils/permissions";
 
 interface Class {
   _id: string;
@@ -38,6 +40,9 @@ export default function ClassesPage() {
       .catch((err) => console.error("Error updating class:", err));
   };
 
+  const canCreateClass = useHasPermission(PERMISSIONS.class.create);
+  const canEditClass = useHasPermission(PERMISSIONS.class.update);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-12">
@@ -52,10 +57,12 @@ export default function ClassesPage() {
                 Manage your classes and sections efficiently
               </p>
             </div>
-            <button className="bg-indigo-600 text-white px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-indigo-500 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-indigo-200 dark:hover:shadow-indigo-800">
-              <PlusCircle size={20} />
-              <span className="font-medium">Add New Class</span>
-            </button>
+            {canCreateClass && (
+              <button className="bg-indigo-600 text-white px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-indigo-500 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-indigo-200 dark:hover:shadow-indigo-800">
+                <PlusCircle size={20} />
+                <span className="font-medium">Add New Class</span>
+              </button>
+            )}
           </div>
 
           {/* Stats Overview */}
@@ -141,13 +148,15 @@ export default function ClassesPage() {
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                       {cls.name} - {cls.section}
                     </h3>
-                    <button
-                      onClick={() => handleEditClick(cls)}
-                      className="p-2 text-gray-500 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
-                      title="Edit class"
-                    >
-                      <Edit size={18} />
-                    </button>
+                    {canEditClass && (
+                      <button
+                        onClick={() => handleEditClick(cls)}
+                        className="p-2 text-gray-500 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
+                        title="Edit class"
+                      >
+                        <Edit size={18} />
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

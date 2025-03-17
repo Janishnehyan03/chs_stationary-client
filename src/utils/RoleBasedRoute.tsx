@@ -3,7 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useUserContext } from "../context/userContext";
 
 interface RoleBasedRouteProps {
-  allowedRoles: ("admin" | "user")[];
+  allowedRoles: ("admin" | "user" | "super-admin")[];
 }
 
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ allowedRoles }) => {

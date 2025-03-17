@@ -16,6 +16,7 @@ import Unauthorized from "./pages/Unauthorized";
 import StudentProfile from "./pages/StudentProfile";
 import Students from "./pages/StudentsPage";
 import { ModalProvider } from "./context/modalContext";
+import Permissions from "./pages/Permissions";
 
 function App() {
   const location = useLocation();
@@ -47,7 +48,11 @@ function App() {
               <Route path="/student/:userId" element={<StudentProfile />} />
 
               {/* Role-Based Routes */}
-              <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
+              <Route
+                element={
+                  <RoleBasedRoute allowedRoles={["super-admin", "admin"]} />
+                }
+              >
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/products" element={<Products />} />
@@ -55,6 +60,7 @@ function App() {
                 <Route path="/teachers" element={<TeachersPage />} />
                 <Route path="/students" element={<StudentsPage />} />
                 <Route path="/invoice" element={<Invoice />} />
+                <Route path="/permissions" element={<Permissions />} />
               </Route>
 
               {/* Unauthorized Route */}
