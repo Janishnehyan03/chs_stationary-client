@@ -1,21 +1,44 @@
-import { Loader2, Package, IndianRupee, AlertCircle, Edit } from "lucide-react";
+import {
+  Loader2,
+  Package,
+  IndianRupee,
+  AlertCircle,
+  Edit,
+  Trash,
+} from "lucide-react";
 import { Product } from "../../utils/types/types";
 import { useHasPermission } from "../../utils/hooks/useHasPermission";
 import { PERMISSIONS } from "../../utils/permissions";
+import Axios from "../../Axios";
 
 interface ProductTableProps {
   products: Product[];
   isLoading: boolean;
   onEditClick: (product: Product) => void; // Add this prop
+  fetchProducts: () => void; // Add this prop
 }
 
 export function ProductTable({
   products,
   isLoading,
   onEditClick,
+  fetchProducts,
 }: ProductTableProps) {
   const canUpdateProduct = useHasPermission(PERMISSIONS.products.update);
   const canDeleteProduct = useHasPermission(PERMISSIONS.products.delete);
+
+  const deleteProduct = async (productId: string) => {
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
+
+    try {
+      // Delete product
+      await Axios.delete(`/products/${productId}`);
+      fetchProducts();
+    } catch (error: any) {
+      console.error("Error deleting product", error.response);
+    }
+  };
   return (
     <div className="overflow-hidden rounded-2xl shadow-lg border border-gray-300 dark:border-gray-700">
       <div className="overflow-x-auto">
@@ -30,7 +53,8 @@ export function ProductTable({
                 "Product Code",
                 "Wholesale Price",
                 "Stock",
-                (canDeleteProduct || canUpdateProduct) && "Actions",
+                "Edit",
+                "Delete",
               ].map((header, idx) => (
                 <th
                   key={idx}
@@ -142,6 +166,17 @@ export function ProductTable({
                         className="text-teal-600 dark:text-teal-400 hover:text-teal-500 dark:hover:text-teal-300 transition-colors"
                       >
                         <Edit size={18} />
+                      </button>
+                    </td>
+                  )}
+
+                  {canDeleteProduct && (
+                    <td className="px-4 py-3 md:px-6 md:py-4">
+                      <button
+                        onClick={() => deleteProduct(String(product._id))}
+                        className="text-red-600 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 transition-colors"
+                      >
+                        <Trash size={18} />
                       </button>
                     </td>
                   )}

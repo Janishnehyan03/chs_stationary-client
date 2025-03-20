@@ -20,7 +20,7 @@ export default function ImportStudents({
   isOpen,
   onClose,
   classes: classes,
-  fetchStudents
+  fetchStudents,
 }: ImportStudentsProps) {
   const [uploading, setUploading] = useState(false);
   const [selectedClass, setSelectedClass] = useState("");
@@ -142,6 +142,39 @@ export default function ImportStudents({
             Drag & drop an Excel file here, or click to select
           </p>
         </div>
+
+        {/* Display Parsed Students */}
+        {students.length > 0 && (
+          <div className="max-h-64 overflow-y-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100 dark:bg-gray-700">
+                  <th className="p-2 text-left text-gray-800 dark:text-gray-200">
+                    Name
+                  </th>
+                  <th className="p-2 text-left text-gray-800 dark:text-gray-200">
+                    Admission Number
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map((student, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <td className="p-2 text-gray-800 dark:text-gray-200">
+                      {student.name}
+                    </td>
+                    <td className="p-2 text-gray-800 dark:text-gray-200">
+                      {student.admissionNumber}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* File Upload Button */}
         <button

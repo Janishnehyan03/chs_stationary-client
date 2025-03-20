@@ -71,12 +71,20 @@ export default function StudentsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
           {canCreateStudents && (
-            <button
-              className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center gap-2 transition"
-              onClick={() => setIsImportOpen(true)}
-            >
-              <Upload size={20} /> Import Students
-            </button>
+            <>
+              <button
+                className="text-blue-500 px-6 py-3 rounded-xl cursor-pointer flex items-center justify-center gap-2 transition-all duration-200 transform hover:-translate-y-1 shadow-md hover:shadow-lg"
+                onClick={() => window.open("/files/Student-format.xlsx")}
+              >
+                <span className="font-medium">Download Excel Format</span>
+              </button>
+              <button
+                className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg flex items-center gap-2 transition"
+                onClick={() => setIsImportOpen(true)}
+              >
+                <Upload size={20} /> Import Students
+              </button>
+            </>
           )}
         </div>
 
