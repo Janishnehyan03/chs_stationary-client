@@ -1,20 +1,22 @@
 import {
   BookOpen,
   Home,
+  LogOut,
+  LucideBuilding2,
+  Menu,
+  Moon,
   Package,
+  Shield,
   ShoppingBag,
+  ShoppingCart,
+  Sun,
   Users as TeachersIcon,
   User,
   Users,
-  LogOut,
-  Menu,
-  X,
-  Moon,
-  Sun,
-  Shield,
+  X
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { useHasPermission } from "../utils/hooks/useHasPermission";
 import { PERMISSIONS } from "../utils/permissions";
 
@@ -138,6 +140,13 @@ export default function Sidebar() {
                 permission: canReadProducts,
               },
               {
+                to: "/purchases",
+                label: "Purchases",
+                icon: ShoppingCart,
+
+                permission: canCreateUsers,
+              },
+              {
                 to: "/users",
                 label: "Users",
                 icon: Users,
@@ -167,6 +176,12 @@ export default function Sidebar() {
                 icon: Shield,
                 permission: canReadPermissions,
               },
+              {
+                to: "/shops",
+                label: "Shops",
+                icon: LucideBuilding2,
+                permission: canReadPermissions,
+              },
             ]
               .filter(({ permission }) => permission)
               .map(({ to, label, icon: Icon }) => (
@@ -174,15 +189,15 @@ export default function Sidebar() {
                   <Link
                     to={to}
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center space-x-3 text-gray-700 dark:text-gray-300 font-medium p-3 rounded-lg transition-all 
-                  ${
-                    location.pathname === to
-                      ? "bg-blue-500 text-white dark:bg-blue-600"
-                      : "hover:bg-blue-100 dark:hover:bg-gray-700"
-                  }`}
+                    className={`flex items-center space-x-2 text-gray-700 dark:text-gray-300 font-medium p-2 rounded-md transition-all 
+  ${location.pathname === to
+                        ? "bg-blue-500 text-white dark:bg-blue-600"
+                        : "hover:bg-blue-100 dark:hover:bg-gray-700"
+                      }`}
                   >
-                    <Icon size={20} /> <span>{label}</span>
+                    <Icon size={16} /> <span className="text-sm">{label}</span>
                   </Link>
+
                 </li>
               ))}
           </ul>

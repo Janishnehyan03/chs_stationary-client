@@ -17,6 +17,8 @@ import StudentProfile from "./pages/StudentProfile";
 import Students from "./pages/StudentsPage";
 import { ModalProvider } from "./context/modalContext";
 import Permissions from "./pages/Permissions";
+import Shops from "./pages/Shops";
+import PurchasePage from "./pages/PurchaseBill";
 
 function App() {
   const location = useLocation();
@@ -37,9 +39,8 @@ function App() {
 
           {/* Main Content Wrapper */}
           <div
-            className={`flex-grow transition-all ${
-              !isPublicPage ? "md:ml-64" : ""
-            }`}
+            className={`flex-grow transition-all ${!isPublicPage ? "md:ml-64" : ""
+              }`}
           >
             <Routes>
               {/* Public Routes */}
@@ -56,6 +57,8 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/products" element={<Products />} />
+                <Route path="/shops" element={<Shops />} />
+                <Route path="/purchases" element={<PurchasePage />} />
                 <Route path="/classes" element={<ClassesPage />} />
                 <Route path="/teachers" element={<TeachersPage />} />
                 <Route path="/students" element={<StudentsPage />} />
