@@ -24,11 +24,14 @@ const PurchasePage = () => {
     price: "",
     paymentMethod: "Cash",
     purchaseDate: new Date().toISOString().split("T")[0],
+    purchasedBy: "",
   };
   const [form, setForm] = useState(initialFormState);
 
   // Form change handler
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setForm((prevForm) => ({
       ...prevForm,
@@ -116,60 +119,64 @@ const PurchasePage = () => {
 
   return (
     <div className="max-w-7xl mx-auto mt-12 px-6 py-8 bg-white rounded-2xl shadow-md">
-    <header className="flex justify-between items-center mb-8">
-      <h2 className="text-2xl font-semibold text-gray-900">Purchase Records</h2>
-      <button
-        onClick={() => setShowForm(true)}
-        className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
-      >
-        <Plus className="w-5 h-5 mr-2" /> New Purchase
-      </button>
-    </header>
+      <header className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-semibold text-gray-900">
+          Purchase Records
+        </h2>
+        <button
+          onClick={() => setShowForm(true)}
+          className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+        >
+          <Plus className="w-5 h-5 mr-2" /> New Purchase
+        </button>
+      </header>
 
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2">
-        <PurchaseTable
-          purchases={purchases}
-          shops={shops}
-          onDelete={deletePurchaseRecord}
-          onEdit={(purchase) => {
-            setEditingPurchase(purchase);
-            setForm({
-              shop: purchase.shop._id || "",
-              price: purchase.price.toString() || "",
-              paymentMethod: purchase.paymentMethod || "Cash",
-              purchaseDate: new Date(purchase.purchaseDate).toISOString().split("T")[0] || "",
-            });
-            setShowForm(true);
-          }}
-          onUploadBill={setSelectedPurchase}
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <PurchaseTable
+            purchases={purchases}
+            shops={shops}
+            onDelete={deletePurchaseRecord}
+            onEdit={(purchase) => {
+              setEditingPurchase(purchase);
+              setForm({
+                shop: purchase.shop._id || "",
+                price: purchase.price.toString() || "",
+                paymentMethod: purchase.paymentMethod || "Cash",
+                purchaseDate:
+                  new Date(purchase.purchaseDate).toISOString().split("T")[0] ||
+                  "",
+                purchasedBy: purchase.purchasedBy || "",
+              });
+              setShowForm(true);
+            }}
+            onUploadBill={setSelectedPurchase}
+          />
+        </div>
+
+        <aside className="space-y-6">
+          {showForm && (
+            <PurchaseForm
+              shops={shops}
+              formData={form}
+              onChange={handleChange}
+              onSubmit={handleSubmit}
+              onCancel={resetForm}
+              isEditing={!!editingPurchase}
+            />
+          )}
+          {selectedPurchase && (
+            <BillUploadForm
+              purchase={selectedPurchase}
+              shops={shops}
+              onUpload={handleBillUpload}
+              onCancel={() => setSelectedPurchase(null)}
+            />
+          )}
+        </aside>
       </div>
-
-      <aside className="space-y-6">
-        {showForm && (
-          <PurchaseForm
-            shops={shops}
-            formData={form}
-            onChange={handleChange}
-            onSubmit={handleSubmit}
-            onCancel={resetForm}
-            isEditing={!!editingPurchase}
-          />
-        )}
-        {selectedPurchase && (
-          <BillUploadForm
-            purchase={selectedPurchase}
-            shops={shops}
-            onUpload={handleBillUpload}
-            onCancel={() => setSelectedPurchase(null)}
-          />
-        )}
-      </aside>
     </div>
-  </div>
   );
 };
-
 
 export default PurchasePage;

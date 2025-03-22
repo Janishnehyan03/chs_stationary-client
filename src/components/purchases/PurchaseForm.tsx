@@ -5,6 +5,7 @@ interface PurchaseFormProps {
     price: string;
     paymentMethod: string;
     purchaseDate: string;
+    purchasedBy: string;
   };
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -59,6 +60,20 @@ const PurchaseForm = ({
             value={formData.price}
             onChange={onChange}
             placeholder="Enter price (₹)"
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Purchased By
+          </label>
+          <input
+            type="text"
+            name="purchasedBy"
+            value={formData.purchasedBy}
+            onChange={onChange}
+            placeholder="Enter name"
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
             required
           />
