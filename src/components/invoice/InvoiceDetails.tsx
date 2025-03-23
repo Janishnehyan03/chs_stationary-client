@@ -34,16 +34,16 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
           <div className="flex justify-between items-center">
             <div className="flex-1">
               <p className="font-medium text-gray-700 dark:text-gray-300">
-                {item.product.title}
+                {item.product?.title}
               </p>
               <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm space-x-4 mt-1">
-                <span>₹{item.product.price.toLocaleString()}</span>
+                <span>₹{item.product?.price.toLocaleString()}</span>
                 <span>×</span>
                 <span>{item.quantity}</span>
               </div>
             </div>
             <p className="text-gray-700 dark:text-gray-300 font-medium">
-              ₹{(item.product.price * item.quantity).toLocaleString()}
+              ₹{(item.product?.price * item.quantity).toLocaleString()}
             </p>
           </div>
         </div>
