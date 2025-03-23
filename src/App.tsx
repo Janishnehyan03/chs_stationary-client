@@ -19,6 +19,7 @@ import { ModalProvider } from "./context/modalContext";
 import Permissions from "./pages/Permissions";
 import Shops from "./pages/Shops";
 import PurchasePage from "./pages/PurchaseBill";
+import Teachers from "./pages/TeachersPage";
 
 function App() {
   const location = useLocation();
@@ -46,7 +47,8 @@ function App() {
               {/* Public Routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/student" element={<Students />} />
-              <Route path="/student/:userId" element={<StudentProfile />} />
+              <Route path="/teacher" element={<Teachers />} />
+              <Route path="/user/:userId" element={<StudentProfile />} />
 
               {/* Role-Based Routes */}
               <Route

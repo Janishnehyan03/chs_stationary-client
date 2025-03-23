@@ -19,7 +19,7 @@ function Students() {
 
     setLoading(true);
     setError(null);
-    Axios.get(`/users?search=${debouncedSearch}`)
+    Axios.get(`/users?search=${debouncedSearch}&role=student`)
       .then((res) => setStudents(res.data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -37,7 +37,7 @@ function Students() {
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold text-gray-800 mb-3 flex items-center justify-center gap-2">
             <Shield className="w-10 h-10 text-blue-600" />
-            User Search
+            Search Students
           </h1>
           <p className="text-gray-600">
             Search for users by name or admission number
@@ -82,7 +82,10 @@ function Students() {
                   key={student.id}
                   className="p-4 flex items-center gap-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  <Link to={`/student/${student._id}`} className="flex items-center gap-4">
+                  <Link
+                    to={`/user/${student._id}`}
+                    className="flex items-center gap-4"
+                  >
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                         <User className="w-6 h-6 text-blue-600" />
