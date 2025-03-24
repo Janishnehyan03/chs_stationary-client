@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import AddStudentModal from "./AddStudentModal"; // Adjust the import path
 import { User } from "../../utils/types/types";
 import { downloadInvoicePDF } from "../../utils/services/download-invoice.service";
-import InvoiceOfStudent from "../invoice/InvoiceOfStudent";
+import InvoiceOfUser from "../invoice/InvoiceOfUser";
 import { useHasPermission } from "../../utils/hooks/useHasPermission";
 import { PERMISSIONS } from "../../utils/permissions";
 
@@ -61,7 +61,7 @@ export default function StudentsTable({
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg overflow-hidden">
       {showInvoice && selectedStudent && (
-        <InvoiceOfStudent
+        <InvoiceOfUser
           student={selectedStudent}
           showModal={showInvoice}
           handleClose={() => setShowInvoice(false)}

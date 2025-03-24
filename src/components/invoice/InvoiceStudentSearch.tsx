@@ -50,7 +50,10 @@ const InvoiceStudentSearch = ({ onSelectStudent }: StudentSearchProps) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setStudents([]);
         setHighlightIndex(-1);
       }
@@ -81,65 +84,80 @@ const InvoiceStudentSearch = ({ onSelectStudent }: StudentSearchProps) => {
 
   return (
     <div className="relative w-full" ref={searchRef}>
-    {/* Input Field */}
-    <div className="relative">
-      <input
-        type="text"
-        placeholder="Search users by name or admission number..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className="w-full px-4 py-2.5 border border-gray-200 rounded-lg 
-          text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 
-          focus:ring-blue-500 focus:border-transparent hover:border-gray-300 
-          transition-shadow duration-200 pr-10"
-      />
-      {loading && (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin">
-          <Loader2 size={18} />
-        </div>
+      {/* Input Field */}
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Search users by name or admission number..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+        bg-white text-gray-900 placeholder-gray-500 focus:outline-none 
+        focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+        hover:border-gray-400 transition-shadow duration-200 pr-10 
+        dark:bg-gray-900 dark:text-gray-200 dark:placeholder-gray-400 
+        dark:border-gray-700 dark:hover:border-gray-600"
+        />
+        {loading && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300 animate-spin">
+            <Loader2 size={18} />
+          </div>
+        )}
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <p className="mt-1.5 text-sm text-red-600 font-medium dark:text-red-500">
+          {error}
+        </p>
+      )}
+
+      {/* Student Suggestions Dropdown */}
+      {students.length > 0 && (
+        <ul
+          className="absolute w-full mt-1.5 bg-white border border-gray-200 
+        rounded-lg shadow-xl max-h-60 overflow-y-auto z-10 
+        dark:bg-gray-800 dark:border-gray-700"
+        >
+          {students.map((s, index) => (
+            <li
+              key={s._id}
+              className={`px-4 py-2.5 cursor-pointer transition-colors duration-150 
+            ${
+              highlightIndex === index
+                ? "bg-blue-100 text-blue-900 dark:bg-blue-700 dark:text-white"
+                : "hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300"
+            }`}
+              onClick={() => {
+                onSelectStudent(s);
+                setSearchQuery("");
+                setStudents([]);
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-medium text-gray-900 dark:text-gray-200">
+                    {s.name}
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-400 text-sm ml-1">
+                    ({s.admissionNumber})
+                  </span>
+                </div>
+                {s.class && (
+                  <span
+                    className="text-xs text-gray-700 font-medium bg-gray-200 
+                  px-2 py-1 rounded-md dark:bg-gray-700 dark:text-gray-300"
+                  >
+                    {s.class.name} - {s.class.section}
+                  </span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
-  
-    {/* Error Message */}
-    {error && (
-      <p className="mt-1.5 text-sm text-red-600 font-medium">{error}</p>
-    )}
-  
-    {/* Student Suggestions Dropdown */}
-    {students.length > 0 && (
-      <ul className="absolute w-full mt-1.5 bg-white border border-gray-100 
-        rounded-lg shadow-xl max-h-60 overflow-y-auto z-10">
-        {students.map((s, index) => (
-          <li
-            key={s._id}
-            className={`px-4 py-2.5 cursor-pointer transition-colors duration-150 
-              ${highlightIndex === index ? "bg-blue-50 text-blue-900" : "hover:bg-gray-50"}`}
-            onClick={() => {
-              onSelectStudent(s);
-              setSearchQuery("");
-              setStudents([]);
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="font-medium text-gray-800">{s.name}</span>
-                <span className="text-gray-500 text-sm ml-1">
-                  ({s.admissionNumber})
-                </span>
-              </div>
-              {s.class && (
-                <span className="text-xs text-gray-600 font-medium bg-gray-100 
-                  px-2 py-1 rounded-md">
-                  {s.class.name} - {s.class.section}
-                </span>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
   );
 };
 

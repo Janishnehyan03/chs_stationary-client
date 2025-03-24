@@ -37,7 +37,7 @@ const downloadInvoicePDF = async (classId: string) => {
       // Add Student Header Row
       tableBody.push([
         invoice.date,
-        `${invoice.student.name} (${invoice.student.admissionNo})`,
+        `${invoice.student.name} (${invoice.student.admissionNumber})`,
         "",
         "",
         "",

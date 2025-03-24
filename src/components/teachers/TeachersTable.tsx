@@ -1,6 +1,8 @@
 import { Phone, Trash, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Teacher } from "../../utils/types/types";
+import InvoiceOfUser from "../invoice/InvoiceOfUser";
+import React from "react";
 
 function TeachersTable({
   filteredTeachers,
@@ -15,8 +17,20 @@ function TeachersTable({
   canUpdateTeacher: any;
   canDeleteTeacher: any;
 }) {
+  const [showInvoice, setShowInvoice] = React.useState(false);
+  const [selectedStudent, setSelectedStudent] = React.useState<any | null>(
+    null
+  );
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+      {showInvoice && selectedStudent && (
+        <InvoiceOfUser
+          student={selectedStudent}
+          showModal={showInvoice}
+          handleClose={() => setShowInvoice(false)}
+        />
+      )}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -27,12 +41,15 @@ function TeachersTable({
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Name
               </th>
-    
+
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Phone
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Due Amount
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+                Show Invoice
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Edit
@@ -82,7 +99,7 @@ function TeachersTable({
                       </Link>
                     </div>
                   </td>
-           
+
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                       <Phone size={16} />
@@ -94,6 +111,18 @@ function TeachersTable({
                       ₹{teacher.dueAmount || 0}
                     </span>
                   </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => {
+                        setSelectedStudent(teacher);
+                        setShowInvoice(true);
+                      }}
+                      className="text-indigo-600 dark:text-indigo-300 hover:underline"
+                    >
+                      Show Invoice
+                    </button>
+                  </td>
+
                   {canUpdateTeacher && (
                     <td className="px-6 py-4">
                       <Link
