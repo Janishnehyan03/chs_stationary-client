@@ -23,7 +23,7 @@ import Teachers from "./pages/TeachersPage";
 
 function App() {
   const location = useLocation();
-  const publicPaths = ["/login", "/student"];
+  const publicPaths = ["/login", "/student", "/teacher"];
 
   // Check if the current page is public (login or student profile)
   const isPublicPage =
@@ -40,8 +40,9 @@ function App() {
 
           {/* Main Content Wrapper */}
           <div
-            className={`flex-grow transition-all ${!isPublicPage ? "md:ml-64" : ""
-              }`}
+            className={`flex-grow transition-all ${
+              !isPublicPage ? "md:ml-64" : ""
+            }`}
           >
             <Routes>
               {/* Public Routes */}
