@@ -1,34 +1,34 @@
-import { matchPath, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./components/Sidebar";
+import { ModalProvider } from "./context/modalContext";
+import { UserProvider } from "./context/userContext";
 import ClassesPage from "./pages/Classes";
 import Dashboard from "./pages/Dashboard";
 import Invoice from "./pages/Invoice";
-import Products from "./pages/Products";
-import StudentsPage from "./pages/Students";
-import TeachersPage from "./pages/Teachers";
-import UsersPage from "./pages/Users";
 import Login from "./pages/Login";
-import { UserProvider } from "./context/userContext";
-import RoleBasedRoute from "./utils/RoleBasedRoute";
-import Unauthorized from "./pages/Unauthorized";
-import StudentProfile from "./pages/StudentProfile";
-import Students from "./pages/StudentsPage";
-import { ModalProvider } from "./context/modalContext";
 import Permissions from "./pages/Permissions";
-import Shops from "./pages/Shops";
+import Products from "./pages/Products";
 import PurchasePage from "./pages/PurchaseBill";
+import Shops from "./pages/Shops";
+import StudentProfile from "./pages/StudentProfile";
+import StudentsPage from "./pages/Students";
+import Students from "./pages/StudentsPage";
+import TeachersPage from "./pages/Teachers";
 import Teachers from "./pages/TeachersPage";
+import Unauthorized from "./pages/Unauthorized";
+import UsersPage from "./pages/Users";
+import RoleBasedRoute from "./utils/RoleBasedRoute";
 
 function App() {
   const location = useLocation();
-  const publicPaths = ["/login", "/student", "/teacher"];
+  const publicPaths = ["/login", "/student", "/teacher", "/user/"];
 
-  // Check if the current page is public (login or student profile)
-  const isPublicPage =
-    publicPaths.includes(location.pathname) ||
-    matchPath("/student/:userId", location.pathname);
+  // Check if the current page is public (login, student profile, or teacher)
+  const isPublicPage = publicPaths.some((path) =>
+    location.pathname.startsWith(path)
+  );
 
   return (
     <ModalProvider>
