@@ -21,7 +21,10 @@ function Students() {
     setError(null);
     Axios.get(`/users?search=${debouncedSearch}&role=student`)
       .then((res) => setStudents(res.data))
-      .catch((err) => setError(err.message))
+      .catch((err: any) => {
+        console.error(err.response);
+        setError(err.message);
+      })
       .finally(() => setLoading(false));
   }, [debouncedSearch]);
 

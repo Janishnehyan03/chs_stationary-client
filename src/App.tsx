@@ -23,11 +23,24 @@ import RoleBasedRoute from "./utils/RoleBasedRoute";
 
 function App() {
   const location = useLocation();
-  const publicPaths = ["/login", "/student", "/teacher", "/user/"];
+  const roleBasedPaths = [
+    "/",
+    "/users",
+    "/products",
+    "/shops",
+    "/purchases",
+    "/classes",
+    "/teachers",
+    "/students",
+    "/invoice",
+    "/permissions",
+  ];
 
-  // Check if the current page is public (login, student profile, or teacher)
-  const isPublicPage = publicPaths.some((path) =>
-    location.pathname.startsWith(path)
+  // Check if the current page is a role-based (private) route
+  const isRoleBasedPage = roleBasedPaths.some(
+    (path) =>
+      location.pathname === path ||
+      (path !== "/" && location.pathname.startsWith(`${path}/`))
   );
 
   return (
@@ -35,13 +48,13 @@ function App() {
       <UserProvider>
         <ToastContainer />
         <div className="flex w-full bg-gray-100 dark:bg-gray-800 min-h-screen">
-          {/* Sidebar is only visible when not on public pages */}
-          {!isPublicPage && <Sidebar />}
+          {/* Sidebar is only visible for role-based (private) pages */}
+          {isRoleBasedPage && <Sidebar />}
 
           {/* Main Content Wrapper */}
           <div
             className={`flex-grow transition-all ${
-              !isPublicPage ? "md:ml-64" : ""
+              isRoleBasedPage ? "md:ml-64" : ""
             }`}
           >
             <Routes>
