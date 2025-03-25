@@ -90,11 +90,11 @@ export default function LatestInvoices({
       <InvoiceSummary
         filter={filter}
         setFilter={setFilter}
-        customStartDate={customStartDate}
         setCustomStartDate={setCustomStartDate}
-        customEndDate={customEndDate}
         setCustomEndDate={setCustomEndDate}
         invoicePaid={invoicePaid}
+        customStartDate={customStartDate || new Date()}
+        customEndDate={customEndDate || new Date()}
       />
 
       {/* Search Box */}
@@ -208,7 +208,10 @@ export const getFilterDates = (filter: string) => {
 
   switch (filter) {
     case "day":
-      return { startDate: "", endDate: "" };
+      return {
+        startDate: dayjs().startOf("day"),
+        endDate: dayjs().endOf("day"),
+      };
     case "week":
       return { startDate: dayjs(startOfWeek), endDate: dayjs(today) };
     case "month":

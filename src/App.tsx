@@ -20,6 +20,10 @@ import Teachers from "./pages/TeachersPage";
 import Unauthorized from "./pages/Unauthorized";
 import UsersPage from "./pages/Users";
 import RoleBasedRoute from "./utils/RoleBasedRoute";
+import TotalInvoiePurchases from "./pages/TotalInvoicePurchases";
+import TotalPaidInvoices from "./pages/TotalPaidInvoices";
+import DueInvoices from "./pages/TotalDueInvoices";
+import TotalStudentBalances from "./pages/TotalStudentBalances";
 
 function App() {
   const location = useLocation();
@@ -34,6 +38,10 @@ function App() {
     "/students",
     "/invoice",
     "/permissions",
+    "/total-invoice-purchase",
+    "/total-invoice-paid",
+    "/total-invoice-due",
+    '/total-student-balances'
   ];
 
   // Check if the current page is a role-based (private) route
@@ -75,6 +83,19 @@ function App() {
                 <Route path="/products" element={<Products />} />
                 <Route path="/shops" element={<Shops />} />
                 <Route path="/purchases" element={<PurchasePage />} />
+                <Route
+                  path="/total-invoice-purchase"
+                  element={<TotalInvoiePurchases />}
+                />
+                <Route
+                  path="/total-invoice-paid"
+                  element={<TotalPaidInvoices />}
+                />
+                <Route
+                  path="/total-student-balances"
+                  element={<TotalStudentBalances />}
+                />
+                <Route path="/total-invoice-due" element={<DueInvoices />} />
                 <Route path="/classes" element={<ClassesPage />} />
                 <Route path="/teachers" element={<TeachersPage />} />
                 <Route path="/students" element={<StudentsPage />} />

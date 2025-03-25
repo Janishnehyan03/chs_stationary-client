@@ -69,3 +69,36 @@ export const fetchInvoices = async () => {
     console.error("Error fetching invoices:", error);
   }
 };
+
+interface PaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+interface PurchaseInvoice {
+  _id: string;
+  user: {
+    name: string;
+    email: string;
+  };
+  createdAt: string;
+  // Add other invoice fields as needed
+}
+
+interface ApiResponse {
+  data: PurchaseInvoice[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export const getPurchases = async (
+  params: PaginationParams
+): Promise<ApiResponse> => {
+  const response = await Axios.get<ApiResponse>("/invoices/purchases/all", {
+    params,
+  });
+  return response.data;
+};

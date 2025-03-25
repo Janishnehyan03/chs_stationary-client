@@ -1,13 +1,39 @@
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { AlertCircle, ShoppingCart, Users, Wallet } from "lucide-react";
+import { useEffect, useState, ChangeEvent, JSX } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { getFilterDates } from "./LatestInvoices";
 import Axios from "../../Axios";
+import { getFilterDates } from "./LatestInvoices";
 
-const FILTER_OPTIONS = ["day", "week", "month", "year", "custom"];
+interface InvoiceData {
+  totalAmount: number;
+  totalPaid: number;
+  totalDue: number;
+  totalStudentBalance: number;
+}
 
-const InvoiceSummary = ({
+interface NavItem {
+  path: string;
+  name: string;
+  icon: JSX.Element;
+  value: number;
+  color: string;
+}
+
+interface InvoiceSummaryProps {
+  filter: string;
+  setFilter: (filter: string) => void;
+  customStartDate: Date;
+  setCustomStartDate: (date: Date) => void;
+  customEndDate: Date;
+  setCustomEndDate: (date: Date) => void;
+  invoicePaid: boolean;
+}
+
+const FILTER_OPTIONS: string[] = ["day", "week", "month", "year", "custom"];
+
+const InvoiceSummary: React.FC<InvoiceSummaryProps> = ({
   filter,
   setFilter,
   customStartDate,
@@ -15,22 +41,14 @@ const InvoiceSummary = ({
   customEndDate,
   setCustomEndDate,
   invoicePaid,
-}: {
-  filter: string;
-  setFilter: (filter: string) => void;
-  customStartDate: Date | null;
-  setCustomStartDate: (date: Date | null) => void;
-  customEndDate: Date | null;
-  setCustomEndDate: (date: Date | null) => void;
-  invoicePaid: boolean;
 }) => {
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [totalPaid, setTotalPaid] = useState(0);
-  const [totalDue, setTotalDue] = useState(0);
-  const [totalStudentBalance, setTotalStudentBalance] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState<number>(0);
+  const [totalPaid, setTotalPaid] = useState<number>(0);
+  const [totalDue, setTotalDue] = useState<number>(0);
+  const [totalStudentBalance, setTotalStudentBalance] = useState<number>(0);
 
   useEffect(() => {
-    const fetchInvoices = async () => {
+    const fetchInvoices = async (): Promise<void> => {
       try {
         const { startDate, endDate } =
           filter === "custom"
@@ -42,7 +60,7 @@ const InvoiceSummary = ({
             ? { startDate: "", endDate: "" }
             : getFilterDates(filter);
 
-        const response = await Axios.get(
+        const response = await Axios.get<InvoiceData>(
           `/invoices/overview/data?filter=${filter}&startDate=${startDate}&endDate=${endDate}`
         );
 
@@ -51,87 +69,139 @@ const InvoiceSummary = ({
         setTotalDue(response.data.totalDue);
         setTotalStudentBalance(response.data.totalStudentBalance);
       } catch (error) {
-        console.error("Error fetching invoices:", error);
+        console.error("Failed to fetch invoices:", error);
       }
     };
 
     fetchInvoices();
   }, [filter, customStartDate, customEndDate, invoicePaid]);
 
+  const navItems: NavItem[] = [
+    {
+      path: "/total-invoice-purchase",
+      name: "Total Purchases",
+      icon: (
+        <ShoppingCart
+          size={20}
+          className="text-green-600 dark:text-green-400"
+        />
+      ),
+      value: totalRevenue,
+      color: "text-green-600 dark:text-green-400",
+    },
+    {
+      path: "/total-invoice-paid",
+      name: "Total Paid",
+      icon: <Wallet size={20} className="text-blue-600 dark:text-blue-400" />,
+      value: totalPaid,
+      color: "text-blue-600 dark:text-blue-400",
+    },
+    {
+      path: "/total-invoice-due",
+      name: "Total Due",
+      icon: (
+        <AlertCircle size={20} className="text-red-600 dark:text-red-400" />
+      ),
+      value: totalDue,
+      color: "text-red-600 dark:text-red-400",
+    },
+    {
+      path: "/total-student-balances",
+      name: "Student Balances",
+      icon: (
+        <Users size={20} className="text-yellow-600 dark:text-yellow-400" />
+      ),
+      value: totalStudentBalance,
+      color: "text-yellow-600 dark:text-yellow-400",
+    },
+  ];
+
+  const handleFilterChange = (e: ChangeEvent<HTMLSelectElement>): void => {
+    setFilter(e.target.value);
+  };
+
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-      {/* Summary Section */}
-      <div className="grid grid-cols-2 md:flex gap-6 w-full md:w-auto">
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Total Purchase
-          </p>
-          <p className="text-xl font-semibold text-green-600 dark:text-green-400">
-            ₹{totalRevenue.toLocaleString()}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Total Paid</p>
-          <p className="text-xl font-semibold text-blue-600 dark:text-blue-400">
-            ₹{totalPaid.toLocaleString()}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Total Due</p>
-          <p className="text-xl font-semibold text-red-600 dark:text-red-400">
-            ₹{totalDue.toLocaleString()}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Total Student Balance
-          </p>
-          <p className="text-xl font-semibold text-yellow-600 dark:text-yellow-400">
-            ₹{totalStudentBalance.toLocaleString()}
-          </p>
+    <div className="container mx-auto px-4 py-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          {/* Navigation Summary */}
+          <nav className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-wrap gap-6 w-full md:w-auto">
+            {navItems.map((item) => (
+              <a
+                key={item.path}
+                href={item.path}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+              >
+                {item.icon}
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {item.name}
+                  </p>
+                  <p className={`text-xl font-semibold ${item.color}`}>
+                    ₹{item.value.toLocaleString("en-IN")}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </nav>
+
+          {/* Filter Controls */}
+          <div className="flex flex-col gap-4 w-full md:w-auto">
+            <div className="flex items-center gap-4">
+              <label
+                htmlFor="filter"
+                className="text-sm text-gray-600 dark:text-gray-400"
+              >
+                Filter by:
+              </label>
+              <select
+                id="filter"
+                value={filter}
+                onChange={handleFilterChange}
+                className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-200"
+              >
+                {FILTER_OPTIONS.map((option) => (
+                  <option key={option} value={option} className="capitalize">
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Custom Date Picker */}
+            {filter === "custom" && (
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <label className="text-sm text-gray-600 dark:text-gray-400 block mb-1">
+                    Start Date
+                  </label>
+                  <DatePicker
+                    selected={customStartDate}
+                    onChange={(date: Date | null) =>
+                      date && setCustomStartDate(date)
+                    }
+                    dateFormat="yyyy-MM-dd"
+                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-sm text-gray-600 dark:text-gray-400 block mb-1">
+                    End Date
+                  </label>
+                  <DatePicker
+                    selected={customEndDate}
+                    onChange={(date: Date | null) =>
+                      date && setCustomEndDate(date)
+                    }
+                    dateFormat="yyyy-MM-dd"
+                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Filter Dropdown */}
-      <div className="mt-4 md:mt-0">
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          {FILTER_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Date Picker (Shown only if custom filter is selected) */}
-      {filter === "custom" && (
-        <div className="flex flex-col md:flex-row gap-4 mt-4 md:mt-0">
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Start Date
-            </p>
-            <DatePicker
-              selected={customStartDate}
-              onChange={(date) => setCustomStartDate(date)}
-              dateFormat="yyyy-MM-dd"
-              className="border p-2 rounded-md w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-            />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">End Date</p>
-            <DatePicker
-              selected={customEndDate}
-              onChange={(date) => setCustomEndDate(date)}
-              dateFormat="yyyy-MM-dd"
-              className="border p-2 rounded-md w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
