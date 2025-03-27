@@ -2,9 +2,14 @@ import React, { useState } from "react";
 import Axios from "../Axios";
 import { toast } from "react-toastify";
 import { useUserContext } from "../context/userContext";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
+  const { user } = useUserContext();
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

@@ -94,7 +94,7 @@ const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({
               <button
                 onClick={submitInvoice}
                 disabled={!student || items.length === 0}
-                className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors disabled:bg-blue-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
+                className="w-full cursor-pointer sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors disabled:bg-blue-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
               >
                 Generate Invoice
               </button>
