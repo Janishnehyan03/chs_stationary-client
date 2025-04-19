@@ -1,4 +1,4 @@
-import { Check, Edit, PlusCircle, Users } from "lucide-react";
+import { Check, Edit, PlusCircle, Users, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import Axios from "../Axios";
 import { useHasPermission } from "../utils/hooks/useHasPermission";
@@ -17,6 +17,12 @@ export default function ClassesPage() {
     name: string;
     section: string;
   }>({ name: "", section: "" });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newClass, setNewClass] = useState<{ name: string; section: string }>({
+    name: "",
+    section: "",
+  });
+  const [errors, setErrors] = useState<{ name?: string; section?: string }>({});
 
   useEffect(() => {
     Axios.get("/classes")
@@ -40,6 +46,31 @@ export default function ClassesPage() {
       .catch((err) => console.error("Error updating class:", err));
   };
 
+  const validateForm = () => {
+    const newErrors: { name?: string; section?: string } = {};
+    if (!newClass.name.trim()) {
+      newErrors.name = "Class name is required";
+    }
+    if (!newClass.section.trim()) {
+      newErrors.section = "Section is required";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleCreateClass = () => {
+    if (!validateForm()) return;
+
+    Axios.post("/classes", newClass)
+      .then((res) => {
+        setClasses([...classes, res.data]);
+        setNewClass({ name: "", section: "" });
+        setIsModalOpen(false);
+        setErrors({});
+      })
+      .catch((err) => console.error("Error creating class:", err));
+  };
+
   const canCreateClass = useHasPermission(PERMISSIONS.class.create);
   const canEditClass = useHasPermission(PERMISSIONS.class.update);
 
@@ -50,7 +81,7 @@ export default function ClassesPage() {
         <div className="mb-12 p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-gray-700/50 shadow-sm">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text ">
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text">
                 Class Management
               </h1>
               <p className="text-gray-600 dark:text-gray-300 max-w-lg">
@@ -59,7 +90,10 @@ export default function ClassesPage() {
               </p>
             </div>
             {canCreateClass && (
-              <button className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium text-white transition-all duration-300 rounded-xl group bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl active:scale-95">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium text-white transition-all duration-300 rounded-xl group bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl active:scale-95"
+              >
                 <PlusCircle size={20} className="mr-2" />
                 <span className="font-medium">Add New Class</span>
                 <span className="absolute right-0 w-8 h-32 -mt-12 transition-all duration-1000 transform translate-x-12 bg-white opacity-10 rotate-12 group-hover:-translate-x-40 ease"></span>
@@ -172,6 +206,92 @@ export default function ClassesPage() {
             </div>
           ))}
         </div>
+
+        {/* Create Class Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl relative animate-in fade-in-50 duration-300">
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setNewClass({ name: "", section: "" });
+                  setErrors({});
+                }}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+              >
+                <X size={24} />
+              </button>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                Create New Class
+              </h2>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                    Class Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newClass.name}
+                    onChange={(e) =>
+                      setNewClass({ ...newClass, name: e.target.value })
+                    }
+                    className={`w-full px-4 py-2 border ${
+                      errors.name
+                        ? "border-red-500"
+                        : "border-gray-200 dark:border-gray-600"
+                    } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+                    placeholder="Enter class name"
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                    Section
+                  </label>
+                  <input
+                    type="text"
+                    value={newClass.section}
+                    onChange={(e) =>
+                      setNewClass({ ...newClass, section: e.target.value })
+                    }
+                    className={`w-full px-4 py-2 border ${
+                      errors.section
+                        ? "border-red-500"
+                        : "border-gray-200 dark:border-gray-600"
+                    } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+                    placeholder="Enter section"
+                  />
+                  {errors.section && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.section}
+                    </p>
+                  )}
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setNewClass({ name: "", section: "" });
+                      setErrors({});
+                    }}
+                    className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCreateClass}
+                    className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                  >
+                    <PlusCircle size={18} />
+                    Create Class
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

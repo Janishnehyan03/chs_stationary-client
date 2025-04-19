@@ -36,6 +36,12 @@ export const PERMISSIONS = {
     update: "update:teacher",
     delete: "delete:teacher",
   },
+  classes: {
+    read: "read:class",
+    create: "create:class",
+    update: "update:class",
+    delete: "delete:class",
+  },
   permissions: {
     read: "read:permission",
     create: "create:permission",
