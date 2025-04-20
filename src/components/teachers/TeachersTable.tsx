@@ -1,8 +1,140 @@
-import { Phone, Trash, User } from "lucide-react";
+import { Pencil, Phone, Trash, User } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Teacher } from "../../utils/types/types";
 import InvoiceOfUser from "../invoice/InvoiceOfUser";
-import React from "react";
+
+import { toast } from "react-toastify";
+import Axios from "../../Axios";
+
+interface TeachersTableProps {
+  filteredTeachers: Teacher[];
+  loading: boolean;
+  deleteTeacher: (id: string) => void;
+  canUpdateTeacher: any;
+  canDeleteTeacher: any;
+  onTeacherUpdated?: () => void; // Optional callback to refresh teacher list
+}
+
+import { X } from "lucide-react";
+import { Teacher } from "../../utils/types/types";
+
+interface TeacherFormProps {
+  teacher?: Teacher; // Optional for add mode, required for edit mode
+  onSubmit: (teacher: Partial<Teacher>) => void;
+  onCancel: () => void;
+  loading: boolean;
+  mode: "add" | "edit";
+}
+
+function TeacherForm({
+  teacher,
+  onSubmit,
+  onCancel,
+  loading,
+  mode,
+}: TeacherFormProps) {
+  const [formData, setFormData] = useState<Partial<Teacher>>(
+    teacher || { name: "", email: "", phone: "", dueAmount: 0 }
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+    window.location.reload(); // Refresh the page after submission
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            {mode === "add" ? "Add New Teacher" : "Edit Teacher"}
+          </h2>
+          <button
+            onClick={onCancel}
+            className="text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200 transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              placeholder="Enter full name"
+              className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-gray-100"
+              value={formData.name || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              required
+            />
+          </div>
+         
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Phone
+            </label>
+            <input
+              type="tel"
+              placeholder="Enter phone number"
+              className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-gray-100"
+              value={formData.phone || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Balance Amount
+            </label>
+            <input
+              type="number"
+              min="0"
+              placeholder="Enter balance amount"
+              className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-gray-100"
+              value={formData.balance || 0}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  balance: parseFloat(e.target.value) || 0,
+                })
+              }
+            />
+          </div>
+          <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 flex justify-end gap-3">
+            <button
+              type="button"
+              className="px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <span>{mode === "add" ? "Adding..." : "Updating..."}</span>
+                </div>
+              ) : (
+                <>{mode === "add" ? "Add Teacher" : "Update Teacher"}</>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 function TeachersTable({
   filteredTeachers,
@@ -10,20 +142,44 @@ function TeachersTable({
   deleteTeacher,
   canUpdateTeacher,
   canDeleteTeacher,
-}: {
-  filteredTeachers: Teacher[];
-  loading: any;
-  deleteTeacher: any;
-  canUpdateTeacher: any;
-  canDeleteTeacher: any;
-}) {
-  const [showInvoice, setShowInvoice] = React.useState(false);
-  const [selectedStudent, setSelectedStudent] = React.useState<any | null>(
-    null
-  );
+  onTeacherUpdated,
+}: TeachersTableProps) {
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Teacher | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Function to handle opening the edit modal
+  const handleEditClick = (teacher: Teacher) => {
+    setSelectedTeacher(teacher);
+    setShowEditModal(true);
+  };
+
+  // Function to handle form submission for updating a teacher
+  const handleUpdateTeacher = async (updatedTeacher: Partial<Teacher>) => {
+    if (!selectedTeacher) return;
+    setIsUpdating(true);
+    try {
+      await Axios.put(`/teachers/${selectedTeacher._id}`, updatedTeacher);
+      setShowEditModal(false);
+      setSelectedTeacher(null);
+      toast.success("Teacher updated successfully!");
+      if (onTeacherUpdated) onTeacherUpdated(); // Call callback to refresh data
+    } catch (error: any) {
+      console.error("Error updating teacher:", error);
+      toast.error(
+        "Error updating teacher: " +
+          (error.response?.data?.message || "Unknown error")
+      );
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+      {/* Invoice Modal */}
       {showInvoice && selectedStudent && (
         <InvoiceOfUser
           student={selectedStudent}
@@ -31,6 +187,21 @@ function TeachersTable({
           handleClose={() => setShowInvoice(false)}
         />
       )}
+
+      {/* Edit Teacher Modal */}
+      {showEditModal && selectedTeacher && (
+        <TeacherForm
+          teacher={selectedTeacher}
+          onSubmit={handleUpdateTeacher}
+          onCancel={() => {
+            setShowEditModal(false);
+            setSelectedTeacher(null);
+          }}
+          loading={isUpdating}
+          mode="edit"
+        />
+      )}
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -41,12 +212,14 @@ function TeachersTable({
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Name
               </th>
-
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Phone
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Due Amount
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+                Balance Amount
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Show Invoice
@@ -63,7 +236,7 @@ function TeachersTable({
             {loading ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={8}
                   className="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
                 >
                   <div className="flex items-center justify-center gap-2">
@@ -73,7 +246,7 @@ function TeachersTable({
                 </td>
               </tr>
             ) : (
-              filteredTeachers.map((teacher, index) => (
+              filteredTeachers.map((teacher: Teacher, index) => (
                 <tr
                   key={teacher._id}
                   className="border-b border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -99,7 +272,6 @@ function TeachersTable({
                       </Link>
                     </div>
                   </td>
-
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                       <Phone size={16} />
@@ -109,6 +281,11 @@ function TeachersTable({
                   <td className="px-6 py-4">
                     <span className="font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900 rounded-full px-2.5 py-0.5">
                       ₹{teacher.dueAmount || 0}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900 rounded-full px-2.5 py-0.5">
+                      ₹{teacher?.balance || 0}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -122,15 +299,14 @@ function TeachersTable({
                       Show Invoice
                     </button>
                   </td>
-
                   {canUpdateTeacher && (
                     <td className="px-6 py-4">
-                      <Link
-                        to={`/user/${teacher._id}`}
-                        className="text-indigo-600 dark:text-indigo-300 hover:underline"
+                      <button
+                        onClick={() => handleEditClick(teacher)}
+                        className="text-indigo-600 dark:text-indigo-300 cursor-pointer hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
                       >
-                        Edit
-                      </Link>
+                      <Pencil size={20} />
+                      </button>
                     </td>
                   )}
                   {canDeleteTeacher && (

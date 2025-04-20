@@ -1,11 +1,11 @@
 import React from "react";
-import { Invoice, User } from "../../utils/types/types";
-import InvoiceItem from "./InvoiceItem";
-import EditInvoiceModal from "./EditInvoiceModal";
 import { fetchInvoices } from "../../utils/services/invoice.service";
+import { Invoice } from "../../utils/types/types";
+import EditInvoiceModal from "./EditInvoiceModal";
+import InvoiceItem from "./InvoiceItem";
 
 interface InvoiceOfStudentProps {
-  student: User;
+  student: any;
   showModal: boolean;
   handleClose: () => void;
 }
@@ -43,7 +43,7 @@ const InvoiceOfUser: React.FC<InvoiceOfStudentProps> = ({
 
         {/* Invoices Grid */}
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {student.invoices.map((invoice) => (
+          {student.invoices.map((invoice:any) => (
             <div
               key={invoice._id}
               className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 shadow-md border border-gray-200 dark:border-gray-700"

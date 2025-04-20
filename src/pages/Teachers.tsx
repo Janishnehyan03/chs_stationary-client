@@ -19,6 +19,7 @@ export default function TeachersPage() {
     name: "",
     email: "",
     phone: "",
+    balance: 0,
   });
   const [loading, setLoading] = useState(false);
   const canCreateTeacher = useHasPermission(PERMISSIONS.teachers.create);

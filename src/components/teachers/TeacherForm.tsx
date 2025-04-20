@@ -7,7 +7,7 @@ function TeacherForm({
   loading,
   setIsModalOpen,
 }: {
-  newTeacher: { name: string; email: string; phone: string };
+  newTeacher: any;
   setNewTeacher: Function;
   handleAddTeacher: any;
   loading: boolean;
@@ -67,6 +67,24 @@ function TeacherForm({
               value={newTeacher.phone}
               onChange={(e) =>
                 setNewTeacher({ ...newTeacher, phone: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Balance
+            </label>
+            <input
+              type="number"
+              min="0"
+              placeholder="Enter balance amount"
+              className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-gray-100"
+              value={newTeacher.balance}
+              onChange={(e) =>
+                setNewTeacher({
+                  ...newTeacher,
+                  balance: parseFloat(e.target.value),
+                })
               }
             />
           </div>

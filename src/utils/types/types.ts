@@ -33,6 +33,7 @@ export interface Teacher {
   email: string;
   phone: string;
   dueAmount: number;
+  balance: number;
 }
 
 export interface User {
