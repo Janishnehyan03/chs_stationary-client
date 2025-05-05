@@ -11,22 +11,42 @@ const downloadInvoicePDF = async (classId: string) => {
       return;
     }
 
-    const doc = new jsPDF();
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    // Set default font to Helvetica
+    doc.setFont('helvetica');
+
     const firstInvoice = data.invoices[0];
 
     // Extract Class Name & Current Date
     const className = `Class ${firstInvoice.class}`;
     const reportDate = `Date: ${new Date().toISOString().split('T')[0]}`;
 
+    // Page margins
+    const marginLeft = 15;
+    const marginRight = 15;
+    const pageWidth = doc.internal.pageSize.width;
+
+    // Header: Dark navy blue banner
+    doc.setFillColor(10, 61, 98); // Dark navy blue (#0A3D62)
+    doc.rect(0, 0, pageWidth, 25, 'F');
+
     // School Name & Report Header
-    doc.setFont("helvetica", "bold");
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text("CHS STATIONERY SHOP", 14, 15);
-    doc.setFontSize(12);
-    doc.text("Invoice Report", 14, 25);
-    doc.setFontSize(10);
-    doc.text(className, 14, 35);
-    doc.text(reportDate, 160, 35);
+    doc.setTextColor(255, 255, 255);
+    doc.text('CHS STATIONERY SHOP', marginLeft + 35, 12);
+    doc.setFontSize(11);
+    doc.text('Invoice Report', marginLeft + 35, 18);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(0);
+    doc.text(className, marginLeft, 32);
+    doc.text(reportDate, pageWidth - marginRight - 30, 32);
 
     // Prepare table data
     let tableBody: any[] = [];
@@ -35,13 +55,14 @@ const downloadInvoicePDF = async (classId: string) => {
     let classPaidAmount = 0;
     let classStudentBalance = 0;
 
-    data.invoices.forEach((invoice: any) => {
+    data.invoices.forEach((invoice: any, index: number) => {
       tableBody.push([
+        index + 1, // Add index number
         invoice.name,
         invoice.admissionNumber,
-        invoice.class,
+        { content: invoice.class, styles: { fillColor: [224, 247, 250] } }, // Highlight Class column
         invoice.totalAmount,
-        { content: invoice.pendingAmount, styles: { textColor: [255, 0, 0] } },
+        { content: invoice.pendingAmount, styles: { textColor: [200, 0, 0] } },
         invoice.paidAmount,
         invoice.studentBalance,
       ]);
@@ -55,9 +76,9 @@ const downloadInvoicePDF = async (classId: string) => {
 
     // Add class totals
     tableBody.push([
-      { content: "Class Totals:", colSpan: 3, styles: { fontStyle: "bold" } },
+      { content: 'Class Totals:', colSpan: 4, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } },
       classTotalAmount.toFixed(2),
-      { content: classPendingAmount.toFixed(2), styles: { textColor: [255, 0, 0] } },
+      { content: classPendingAmount.toFixed(2), styles: { textColor: [200, 0, 0], fillColor: [240, 240, 240] } },
       classPaidAmount.toFixed(2),
       classStudentBalance.toFixed(2),
     ]);
@@ -66,35 +87,66 @@ const downloadInvoicePDF = async (classId: string) => {
     autoTable(doc, {
       head: [
         [
-          "Name",
-          "Admission Number",
-          "Class",
-          "Total Amount",
-          "Pending Amount",
-          "Paid Amount",
-          "Student Balance",
+          'S.No', // Add Serial Number header
+          'Name',
+          'Admission Number',
+          'Class',
+          'Total Amount',
+          'Pending Amount',
+          'Paid Amount',
+          'Student Balance',
         ],
       ],
       body: tableBody,
-      startY: 45,
-      styles: { fontSize: 10, cellPadding: 3 },
+      startY: 40,
+      theme: 'striped',
+      styles: {
+        font: 'helvetica',
+        fontSize: 8,
+        cellPadding: 2.5,
+        textColor: [50, 50, 50],
+      },
       headStyles: {
-        fillColor: [52, 73, 94],
+        fillColor: [10, 61, 98], // Dark navy blue (#0A3D62)
         textColor: [255, 255, 255],
-        fontStyle: "bold",
+        fontStyle: 'bold',
+        fontSize: 9,
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
       },
       columnStyles: {
-        4: { textColor: [255, 0, 0] }, // Pending Amount in red
-        3: { fontStyle: "bold" }, // Total Amount bold
-        5: { fontStyle: "bold" }, // Paid Amount bold
-        6: { fontStyle: "bold" }, // Student Balance bold
+        0: { cellWidth: 15 }, // S.No
+        1: { cellWidth: 40 }, // Name
+        2: { cellWidth: 30 }, // Admission Number
+        3: { cellWidth: 20, fillColor: [224, 247, 250] }, // Class (highlighted)
+        4: { cellWidth: 20, fontStyle: 'bold' }, // Total Amount
+        5: { cellWidth: 20, textColor: [200, 0, 0] }, // Pending Amount
+        6: { cellWidth: 20, fontStyle: 'bold' }, // Paid Amount
+        7: { cellWidth: 20, fontStyle: 'bold' }, // Student Balance
+      },
+      margin: { left: marginLeft, right: marginRight },
+      didDrawPage: (data) => {
+        // Footer
+        const pageHeight = doc.internal.pageSize.height;
+        doc.setFontSize(7);
+        doc.setTextColor(100, 100, 100);
+        doc.text('CHS Stationery Shop  | ', marginLeft, pageHeight - 10);
+        doc.setTextColor(0, 0, 255); // Blue for URL
+        doc.textWithLink('chsstationery.shop', marginLeft + 40, pageHeight - 10, { url: 'https://chsstationery.shop' });
+        doc.setTextColor(100, 100, 100);
+        doc.text(' | Developed by ', marginLeft + 70, pageHeight - 10);
+        doc.setTextColor(0, 128, 0); // Green for Digitio Stack
+        doc.textWithLink('Digitio Stack', marginLeft + 95, pageHeight - 10, { url: 'https://digitiostack.vercel.app' });
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Page ${data.pageNumber}`, pageWidth - marginRight - 10, pageHeight - 10);
       },
     });
 
     // Save PDF
     doc.save(`Invoices_Class_${classId}.pdf`);
   } catch (error) {
-    console.error("Error fetching invoices:", error);
+    console.error('Error fetching invoices:', error);
   }
 };
 
