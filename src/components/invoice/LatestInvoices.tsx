@@ -11,8 +11,12 @@ import { fetchInvoices } from "../../utils/services/invoice.service";
 
 export default function LatestInvoices({
   newDataAdded,
+  limit,
+  limitSelection,
 }: {
   newDataAdded: boolean;
+  limit: number | string;
+  limitSelection: any;
 }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [expandedInvoices, setExpandedInvoices] = useState<
@@ -32,20 +36,56 @@ export default function LatestInvoices({
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchInvoiceData = async () => {
-    const { data } = await Axios.get("/invoices");
-    setInvoices(data);
+    try {
+      let url = "";
+      if (searchQuery) {
+        url = `/invoices/search/data?search=${encodeURIComponent(searchQuery)}`;
+      } else {
+        const { startDate, endDate } =
+          filter === "custom"
+            ? {
+                startDate: dayjs(customStartDate),
+                endDate: dayjs(customEndDate),
+              }
+            : filter === "day"
+            ? {
+                startDate: dayjs().startOf("day"),
+                endDate: dayjs().endOf("day"),
+              }
+            : getFilterDates(filter);
+
+        const params = new URLSearchParams({
+          limit: String(limit || 10),
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        });
+        url = `/invoices?${params.toString()}`;
+      }
+
+      const { data } = await Axios.get(url);
+      setInvoices(data);
+    } catch (error) {
+      console.error("Error fetching invoices:", error);
+    }
   };
 
   useEffect(() => {
     fetchInvoiceData();
-  }, [newDataAdded]);
+  }, [
+    newDataAdded,
+    limit,
+    filter,
+    customStartDate,
+    customEndDate,
+    searchQuery,
+  ]);
 
   const handleSave = () => {
     fetchInvoices(); // Refetch invoices from the server after saving
     setEditingInvoice(null);
   };
 
-  // Filter invoices based on the selected date range and search query
+  // Filter invoices based on the selected date range only
   const filteredInvoices = invoices.filter((invoice) => {
     const invoiceDate = dayjs(invoice.createdAt);
     const { startDate, endDate } =
@@ -61,16 +101,7 @@ export default function LatestInvoices({
           }
         : getFilterDates(filter);
 
-    // Check if the invoice date is within the selected range
-    const isWithinDateRange =
-      invoiceDate.isAfter(startDate) && invoiceDate.isBefore(endDate);
-
-    // Check if the invoice matches the search query (case-insensitive)
-    const matchesSearchQuery = invoice.user?.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-
-    return isWithinDateRange && matchesSearchQuery;
+    return invoiceDate.isAfter(startDate) && invoiceDate.isBefore(endDate);
   });
 
   return (
@@ -96,13 +127,13 @@ export default function LatestInvoices({
         customStartDate={customStartDate || new Date()}
         customEndDate={customEndDate || new Date()}
       />
-
+      {limitSelection}
       {/* Search Box */}
       <div className="mt-6 mb-8">
         <div className="relative">
           <input
             type="text"
-            placeholder="Search by student name..."
+            placeholder="Search by student name or admission number..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-4 py-2.5 pl-10 rounded-xl border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800"
@@ -131,10 +162,21 @@ export default function LatestInvoices({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredInvoices.map((invoice) => {
-            const totalAmount = invoice.items.reduce(
-              (sum, item) => sum + item.quantity * item.product?.price,
-              0
-            );
+            // Defensive check for items array
+            const totalAmount = Array.isArray(invoice.items)
+              ? invoice.items.reduce((sum, item) => {
+                  const price = item.product?.price || item?.price || 0;
+                  return sum + (item.quantity || 0) * price;
+                }, 0)
+              : 0;
+
+            // Log warning if items is invalid
+            if (!Array.isArray(invoice.items)) {
+              console.warn(
+                `Invalid items for invoice ${invoice._id}:`,
+                invoice.items
+              );
+            }
 
             return (
               <div
@@ -187,13 +229,11 @@ export default function LatestInvoices({
 
       {/* Edit Invoice Modal */}
       {editingInvoice && (
-        <>
-          <EditInvoiceModal
-            invoice={editingInvoice}
-            onClose={() => setEditingInvoice(null)}
-            onSave={handleSave}
-          />
-        </>
+        <EditInvoiceModal
+          invoice={editingInvoice}
+          onClose={() => setEditingInvoice(null)}
+          onSave={handleSave}
+        />
       )}
     </div>
   );

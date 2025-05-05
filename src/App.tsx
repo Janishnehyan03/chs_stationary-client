@@ -21,7 +21,7 @@ function App() {
   return (
     <ModalProvider>
       <UserProvider>
-        <ToastContainer />
+        <ToastContainer position="top-center" autoClose={5000} />
         <div className="flex w-full bg-gray-100 dark:bg-gray-800 min-h-screen">
           {/* Sidebar is only visible for protected routes */}
           {isProtectedRoute && <Sidebar />}

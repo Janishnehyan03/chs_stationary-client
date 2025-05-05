@@ -5,7 +5,6 @@ import Axios from "../../Axios";
 const downloadInvoicePDF = async (classId: string) => {
   try {
     const { data } = await Axios.get(`/invoices/download/${classId}`);
-    console.log(data);
 
     if (!data || data.invoices.length === 0) {
       console.warn("No invoice data available");
@@ -15,9 +14,9 @@ const downloadInvoicePDF = async (classId: string) => {
     const doc = new jsPDF();
     const firstInvoice = data.invoices[0];
 
-    // Extract Class Name & Date
-    const className = `Class ${firstInvoice.student.class.name}${firstInvoice.student.class.section}`;
-    const reportDate = `Date: ${firstInvoice.date}`;
+    // Extract Class Name & Current Date
+    const className = `Class ${firstInvoice.class}`;
+    const reportDate = `Date: ${new Date().toISOString().split('T')[0]}`;
 
     // School Name & Report Header
     doc.setFont("helvetica", "bold");
@@ -29,72 +28,53 @@ const downloadInvoicePDF = async (classId: string) => {
     doc.text(className, 14, 35);
     doc.text(reportDate, 160, 35);
 
+    // Prepare table data
     let tableBody: any[] = [];
     let classTotalAmount = 0;
-    let classTotalDue = 0;
+    let classPendingAmount = 0;
+    let classPaidAmount = 0;
+    let classStudentBalance = 0;
 
     data.invoices.forEach((invoice: any) => {
-      // Add Student Header Row
       tableBody.push([
-        invoice.date,
-        `${invoice.student.name} (${invoice.student.admissionNumber})`,
-        "",
-        "",
-        "",
-      ]);
-
-      // Add Product Details for the Student
-      invoice.items.forEach((item: any) => {
-        tableBody.push([
-          "",
-          item.product.title,
-          item.quantity,
-          item.product.price.toFixed(2),
-          item.total,
-        ]);
-      });
-
-      // Add Student Totals
-      tableBody.push([
-        "",
-        "",
-        "Total Amount:",
-        "",
+        invoice.name,
+        invoice.admissionNumber,
+        invoice.class,
         invoice.totalAmount,
+        { content: invoice.pendingAmount, styles: { textColor: [255, 0, 0] } },
+        invoice.paidAmount,
+        invoice.studentBalance,
       ]);
-      tableBody.push([
-        "",
-        "",
-        { content: "Pending Amount:", styles: { textColor: [255, 0, 0] } },
-        "",
-        { content: invoice.dueAmount, styles: { textColor: [255, 0, 0] } },
-      ]);
-      tableBody.push(["", "", "", "", ""]); // Empty row for spacing
 
-      // Update Class Totals
+      // Update class totals
       classTotalAmount += parseFloat(invoice.totalAmount);
-      classTotalDue += parseFloat(invoice.dueAmount);
+      classPendingAmount += parseFloat(invoice.pendingAmount);
+      classPaidAmount += parseFloat(invoice.paidAmount);
+      classStudentBalance += parseFloat(invoice.studentBalance);
     });
 
-    // Add Class Totals at the End
+    // Add class totals
     tableBody.push([
-      "",
-      "",
-      "Class Total Amount:",
-      "",
+      { content: "Class Totals:", colSpan: 3, styles: { fontStyle: "bold" } },
       classTotalAmount.toFixed(2),
-    ]);
-    tableBody.push([
-      "",
-      "",
-      { content: "Class Pending Amount:", styles: { textColor: [255, 0, 0] } },
-      "",
-      { content: classTotalDue.toFixed(2), styles: { textColor: [255, 0, 0] } },
+      { content: classPendingAmount.toFixed(2), styles: { textColor: [255, 0, 0] } },
+      classPaidAmount.toFixed(2),
+      classStudentBalance.toFixed(2),
     ]);
 
-    // Generate Table
+    // Generate table
     autoTable(doc, {
-      head: [["Date", "Student", "Product", "Quantity", "Price", "Total"]],
+      head: [
+        [
+          "Name",
+          "Admission Number",
+          "Class",
+          "Total Amount",
+          "Pending Amount",
+          "Paid Amount",
+          "Student Balance",
+        ],
+      ],
       body: tableBody,
       startY: 45,
       styles: { fontSize: 10, cellPadding: 3 },
@@ -103,7 +83,12 @@ const downloadInvoicePDF = async (classId: string) => {
         textColor: [255, 255, 255],
         fontStyle: "bold",
       },
-      columnStyles: { 4: { fontStyle: "bold" } },
+      columnStyles: {
+        4: { textColor: [255, 0, 0] }, // Pending Amount in red
+        3: { fontStyle: "bold" }, // Total Amount bold
+        5: { fontStyle: "bold" }, // Paid Amount bold
+        6: { fontStyle: "bold" }, // Student Balance bold
+      },
     });
 
     // Save PDF

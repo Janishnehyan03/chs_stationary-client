@@ -22,7 +22,15 @@ const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
   const { user, isLoading } = useUserContext();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-pulse space-y-4">
+          <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
+          <div className="h-4 bg-gray-300 rounded w-48"></div>
+          <div className="h-4 bg-gray-300 rounded w-32"></div>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {

@@ -13,6 +13,7 @@ export interface Invoice {
   status?: "paid" | "pending";
   amountPaid: number;
   items: {
+    price: number;
     product: {
       title: string;
       price: number;
