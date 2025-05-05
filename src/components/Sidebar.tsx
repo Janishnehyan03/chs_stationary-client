@@ -16,13 +16,12 @@ import {
   X
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useHasPermission } from "../utils/hooks/useHasPermission";
 import { PERMISSIONS } from "../utils/permissions";
 
 export default function Sidebar() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(window.innerWidth >= 768);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -39,7 +38,7 @@ export default function Sidebar() {
   // Logout function
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    window.location.href = "/login";
   };
 
   // Sidebar toggle function

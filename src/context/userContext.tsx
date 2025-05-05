@@ -4,74 +4,170 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from "react";
+import { AxiosError } from "axios";
 import Axios from "../Axios";
 import { User } from "../utils/types/types";
 
+// Enhanced storage utility with type safety
+const storage = {
+  getToken: (): string | null => {
+    try {
+      return localStorage.getItem("token");
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
+      return null;
+    }
+  },
+  setToken: (token: string): void => {
+    try {
+      localStorage.setItem("token", token);
+    } catch (error) {
+      console.error("Error setting token in localStorage:", error);
+    }
+  },
+  removeToken: (): void => {
+    try {
+      localStorage.removeItem("token");
+    } catch (error) {
+      console.error("Error removing token from localStorage:", error);
+    }
+  },
+};
+
 interface UserContextProps {
   user: User | null;
+  isLoading: boolean;
+  error: string | null;
+  isAuthenticated: boolean;
   login: (accessToken: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
-export const UserContext = createContext<UserContextProps | undefined>(
-  undefined
-);
+export const UserContext = createContext<UserContextProps | undefined>(undefined);
 
 interface UserProviderProps {
   children: ReactNode;
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Start with true to handle initial load
+  const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  // Function to fetch user profile from /auth/profile
-  const fetchUser = async (token: string) => {
+  // Validate token and check expiration if JWT
+  const isValidToken = useCallback((token: string | null): boolean => {
+    if (!token) return false;
+    
+    // If using JWT, you could add expiration check here
+    // Example for JWT:
+    // try {
+    //   const decoded = jwtDecode(token);
+    //   return decoded.exp > Date.now() / 1000;
+    // } catch {
+    //   return false;
+    // }
+    
+    return true;
+  }, []);
+
+  // Fetch user profile from /auth/profile
+  const fetchUser = useCallback(async (token: string) => {
     try {
+      setIsLoading(true);
+      setError(null);
       const response = await Axios.get<User>("/auth/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setUser(response.data);
-      localStorage.setItem("user", JSON.stringify(response.data));
-    } catch (error: any) {
-      console.error(
-        "Failed to fetch user profile:",
-        error?.response?.data || error.message
-      );
-      logout();
-    }
-  };
+      const userData = response.data;
+      
+      // Validate user role
+      const validRoles = ["admin", "user", "super-admin", "student", "teacher"];
+      if (userData.role && !validRoles.includes(userData.role)) {
+        throw new Error(`Invalid user role: ${userData.role}`);
+      }
 
-  // Fetch user on initial render if token exists
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token && !user) {
-      fetchUser(token);
-    } else if (token && user) {
-      fetchUser(token);
-    } else {
-      logout();
+      setUser(userData);
+      setIsAuthenticated(true);
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>;
+      const errorMessage = error.response?.data?.message ||
+                         error.message ||
+                         "Failed to fetch user profile";
+      setError(errorMessage);
+      setIsAuthenticated(false);
+
+      // Logout on specific errors
+      if (error.response?.status === 401) {
+        logout();
+      }
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
-  // Login function - store token & fetch user
+  // Initialize authentication state
+  const initializeAuth = useCallback(async () => {
+    const token = storage.getToken();
+    if (isValidToken(token)) {
+      await fetchUser(token!);
+    } else {
+      setIsAuthenticated(false);
+      setIsLoading(false);
+    }
+  }, [fetchUser, isValidToken]);
+
+  // Initialize auth on mount
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  // Login function
   const login = async (accessToken: string) => {
-    localStorage.setItem("token", accessToken);
+    if (!isValidToken(accessToken)) {
+      setError("Invalid token provided");
+      setIsAuthenticated(false);
+      return;
+    }
+    storage.setToken(accessToken);
     await fetchUser(accessToken);
   };
 
+  // Logout function
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    setError(null);
+    setIsAuthenticated(false);
+    storage.removeToken();
+  };
+
+  // Refresh user profile
+  const refreshUser = async () => {
+    const token = storage.getToken();
+    if (isValidToken(token)) {
+      await fetchUser(token!);
+    } else {
+      setError("No valid token found");
+      logout();
+    }
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider
+      value={{ 
+        user, 
+        isLoading, 
+        error, 
+        isAuthenticated,
+        login, 
+        logout, 
+        refreshUser 
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

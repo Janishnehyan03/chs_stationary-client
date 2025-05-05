@@ -2,6 +2,7 @@ import { lazy } from "react";
 import { RouteObject } from "react-router-dom";
 import RoleBasedRoute from "./utils/RoleBasedRoute";
 import NotFoundPage from "./pages/NotFound";
+import UserPage from "./pages/UserPage";
 
 // Public components
 const Login = lazy(() => import("../src/pages/Login"));
@@ -53,9 +54,17 @@ export const publicRoutes: RouteObject[] = [
     element: <Unauthorized />,
   },
   {
-    path:"*",
-    element: <NotFoundPage />
-  }
+    path: "*",
+    element: <NotFoundPage />,
+  },
+  {
+    path: "/user",
+    element: (
+      <RoleBasedRoute allowedRoles={["student", "teacher"]}>
+        <UserPage />
+      </RoleBasedRoute>
+    ),
+  },
 ];
 
 export const protectedRoutes: RouteObject[] = [
@@ -67,6 +76,7 @@ export const protectedRoutes: RouteObject[] = [
       </RoleBasedRoute>
     ),
   },
+
   {
     path: "/users",
     element: (
