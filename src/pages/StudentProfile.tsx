@@ -1,11 +1,15 @@
-import { Loader2, Package, User } from "lucide-react";
+import { IndianRupee, Loader2, Package, User } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useInvoices } from "../utils/hooks/useInvoice";
+import UpiPayment from "./UpiPayment";
+import { useState } from "react";
 
 const StudentProfile = () => {
   const { userId } = useParams();
   const { invoices, loading, error, totalAmount, totalPaid, totalDue } =
     useInvoices(userId || "");
+
+  const [enableUpi, setEnableUpi] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
@@ -93,6 +97,20 @@ const StudentProfile = () => {
           </div>
         )}
 
+        {/* UPI Payment Button */}
+        {!loading && !error && invoices.length > 0 && (
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={() => setEnableUpi(!enableUpi)}
+              className="bg-teal-600 flex cursor-pointer text-white px-4 py-2 rounded-lg shadow-md hover:bg-teal-700 transition duration-200"
+            >
+              <IndianRupee /> {enableUpi ? "Hide UPI Payment" : "UPI Payment"}
+            </button>
+          </div>
+        )}
+
+        {/* UPI Payment Component */}
+        {enableUpi && <UpiPayment />}
         {/* Invoices List */}
         {!loading && !error && invoices.length > 0 && (
           <div className="space-y-6">

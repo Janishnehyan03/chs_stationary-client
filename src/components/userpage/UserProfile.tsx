@@ -10,7 +10,8 @@ function UserProfile({ user }: any) {
               {user.name}
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {user.class.name} - {user.class.section} | Admission No: {user.admissionNumber}
+              {user.class.name} - {user.class.section} | Admission No:{" "}
+              {user.admissionNumber}
             </p>
           </div>
 
@@ -19,7 +20,9 @@ function UserProfile({ user }: any) {
               className="bg-green-50 dark:bg-green-900/50 px-4 py-3 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
               whileHover={{ scale: 1.03 }}
             >
-              <p className="text-xs font-medium text-green-600 dark:text-green-400">Balance</p>
+              <p className="text-xs font-medium text-green-600 dark:text-green-400">
+                Balance
+              </p>
               <p className="font-semibold text-green-800 dark:text-green-300 mt-1">
                 ₹{user.balance.toFixed(2)}
               </p>
@@ -28,7 +31,9 @@ function UserProfile({ user }: any) {
               className="bg-yellow-50 dark:bg-yellow-900/50 px-4 py-3 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
               whileHover={{ scale: 1.03 }}
             >
-              <p className="text-xs font-medium text-yellow-600 dark:text-yellow-400">Due Amount</p>
+              <p className="text-xs font-medium text-yellow-600 dark:text-yellow-400">
+                Due Amount
+              </p>
               <p className="font-semibold text-yellow-800 dark:text-yellow-300 mt-1">
                 ₹{user.dueAmount.toFixed(2)}
               </p>
@@ -37,7 +42,9 @@ function UserProfile({ user }: any) {
               className="bg-blue-50 dark:bg-blue-900/50 px-4 py-3 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
               whileHover={{ scale: 1.03 }}
             >
-              <p className="text-xs font-medium text-blue-600 dark:text-blue-400">Paid Amount</p>
+              <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                Paid Amount
+              </p>
               <p className="font-semibold text-blue-800 dark:text-blue-300 mt-1">
                 ₹{user.paidAmount.toFixed(2)}
               </p>
