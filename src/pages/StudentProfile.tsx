@@ -127,18 +127,18 @@ const StudentProfile = () => {
                   <p className="text-lg font-semibold text-green-600">
                     Paid: ₹{invoice.amountPaid.toFixed(2)}
                   </p>
-                    {invoice.totalAmount - invoice.amountPaid > 0 && (
+                  {invoice.totalAmount - invoice.amountPaid > 0 && (
                     <p className="text-lg font-semibold text-red-600">
                       Due: ₹
                       {(invoice.totalAmount - invoice.amountPaid).toFixed(2)}
                     </p>
-                    )}
+                  )}
                 </div>
 
                 <div className="mt-4">
                   <h4 className="font-medium text-gray-700 mb-2">Items</h4>
                   <div className="divide-y divide-gray-100">
-                    {invoice.items.map((item, index) => (
+                    {invoice.items.map((item: any, index) => (
                       <div
                         key={index}
                         className="py-2 flex items-center justify-between"

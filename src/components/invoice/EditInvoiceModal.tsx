@@ -64,7 +64,7 @@ export default function EditInvoiceModal({
     // Ensure correct structure for backend
     const formattedInvoice = {
       ...editedInvoice,
-      items: editedInvoice.items.map((item) => {
+      items: editedInvoice.items.map((item: any) => {
         const matchedProduct = products.find(
           (p) => p.title === item.product.title
         );
@@ -187,7 +187,7 @@ export default function EditInvoiceModal({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
-                    {editedInvoice.items.map((item, index) => (
+                    {editedInvoice.items.map((item: any, index) => (
                       <tr
                         key={index}
                         className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"

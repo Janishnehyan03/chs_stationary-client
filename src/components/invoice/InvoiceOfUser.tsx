@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { fetchInvoices } from "../../utils/services/invoice.service";
 import { Invoice } from "../../utils/types/types";
 import EditInvoiceModal from "./EditInvoiceModal";
@@ -19,9 +19,15 @@ const InvoiceOfUser: React.FC<InvoiceOfStudentProps> = ({
     null
   );
 
-  const setInvoicePaid = () => {
-    window.location.reload();
-  };
+  const [invoicePaid, setInvoicePaid] = React.useState(false);
+
+  useEffect(() => {
+    if (invoicePaid) {
+      fetchInvoices()
+        .then(() => setInvoicePaid(false))
+        .catch((error) => console.error("Error fetching invoices:", error));
+    }
+  }, [invoicePaid]);
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-black/30 transition-opacity duration-300 
@@ -43,7 +49,7 @@ const InvoiceOfUser: React.FC<InvoiceOfStudentProps> = ({
 
         {/* Invoices Grid */}
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {student.invoices.map((invoice:any) => (
+          {student.invoices.map((invoice: any) => (
             <div
               key={invoice._id}
               className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 shadow-md border border-gray-200 dark:border-gray-700"

@@ -1,28 +1,54 @@
+// export interface Invoice {
+//   _id: string;
+//   user: {
+//     name: string;
+//     role: string;
+//     admissionNumber: string;
+//     balance: number;
+//     class: {
+//       name: string;
+//       section: string;
+//     };
+//   };
+//   status?: "paid" | "pending";
+//   amountPaid: number;
+//   items: {
+//     price: number;
+//     product: {
+//       title: string;
+//       price: number;
+//     };
+//     quantity: number;
+//   }[];
+//   createdAt: string;
+//   totalAmount: number;
+// }
+
 export interface Invoice {
   _id: string;
   user: {
     name: string;
-    role: string;
-    admissionNumber: string;
+    admissionNumber?: string;
+    class?: { name: string; section: string };
     balance: number;
-    class: {
-      name: string;
-      section: string;
-    };
+    role?: string;
   };
-  status?: "paid" | "pending";
-  amountPaid: number;
   items: {
-    price: number;
-    product: {
-      title: string;
-      price: number;
-    };
-    quantity: number;
+    price: number; product: { price: number }; quantity: number 
+}[];
+  totalAmount: number;
+  amountPaid: number;
+  status: "paid" | "unpaid" | "partially_paid";
+  paymentHistory: {
+    _id: string;
+    amount: number;
+    method: "cash" | "online" | "balance" | "other";
+    date: string;
+    corrected: boolean;
   }[];
   createdAt: string;
-  totalAmount: number;
 }
+
 export interface Class {
   _id: string;
   name: string;

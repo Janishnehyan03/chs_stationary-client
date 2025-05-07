@@ -4,6 +4,7 @@ import { Invoice } from "../types/types";
 interface HandlePaymentParams {
   invoiceId: string;
   amount: number | "";
+  method: "cash" | "online" | "balance" | "other";
   useBalance: boolean;
   pendingAmount: number;
   studentBalance: number;
@@ -14,9 +15,18 @@ interface HandlePaymentParams {
   setAmount: (amount: number | "") => void;
 }
 
+interface EditPaymentParams {
+  invoiceId: string;
+  paymentId: string;
+  newAmount: number | "";
+  newMethod: "cash" | "online" | "balance" | "other";
+  fetchInvoices: () => void;
+}
+
 export const handlePayment = async ({
   invoiceId,
   amount,
+  method,
   useBalance,
   pendingAmount,
   studentBalance,
@@ -26,38 +36,70 @@ export const handlePayment = async ({
   setShowPayment,
   setAmount,
 }: HandlePaymentParams) => {
-  if (!amount || isNaN(Number(amount))) {
+  if (!amount || amount <= 0) {
     alert("Please enter a valid amount.");
     return;
   }
 
-  const paymentAmount = Number(amount);
-  if (paymentAmount <= 0 || paymentAmount > pendingAmount) {
-    alert(`Please enter an amount between ₹1 and ₹${pendingAmount}.`);
+  if (amount > pendingAmount) {
+    alert(`Amount (₹${amount}) exceeds pending amount (₹${pendingAmount}).`);
     return;
   }
 
-  if (useBalance && studentBalance < paymentAmount) {
-    alert("Insufficient balance. Please use another payment method.");
+  if (useBalance && studentBalance < amount) {
+    alert(`Insufficient student balance (₹${studentBalance}).`);
     return;
   }
 
   setLoading(true);
   try {
-    await Axios.patch(`/invoices/pay/${invoiceId}`, {
-      amount: paymentAmount,
+    const response = await Axios.patch(`/invoices/pay/${invoiceId}`, {
+      amount,
+      method,
       useBalance,
     });
-    alert("Payment successful!");
+
+    if (response.data.status === "paid") {
+      setInvoicePaid(true);
+    }
+
+    fetchInvoices();
     setShowPayment(false);
     setAmount("");
-    fetchInvoices();
     setInvoicePaid(true);
-  } catch (error) {
-    console.error("Payment failed:", error);
-    alert("Payment failed. Please try again.");
+    alert("Payment successful!");
+    window.location.reload();
+  } catch (error: any) {
+    console.error("Payment error:", error);
+    alert(error.response?.data?.message || "Failed to process payment.");
   } finally {
     setLoading(false);
+  }
+};
+
+export const editPayment = async ({
+  invoiceId,
+  paymentId,
+  newAmount,
+  newMethod,
+  fetchInvoices,
+}: EditPaymentParams) => {
+  if (!newAmount || newAmount <= 0) {
+    throw new Error("Please enter a valid amount.");
+  }
+
+  try {
+    await Axios.patch(`/invoices/edit-payment/${invoiceId}/${paymentId}`, {
+      newAmount,
+      newMethod,
+    });
+
+    fetchInvoices();
+    alert("Payment corrected successfully!");
+    window.location.reload();
+  } catch (error: any) {
+    console.error("Edit payment error:", error);
+    throw new Error(error.response?.data?.message || "Failed to edit payment.");
   }
 };
 
