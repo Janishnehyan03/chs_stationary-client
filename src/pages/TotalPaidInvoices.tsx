@@ -22,6 +22,18 @@ const TotalPaidInvoices = () => {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [classes, setClasses] = useState<Class[]>([]);
   const componentRef = useRef<HTMLDivElement>(null);
+  const [totalAmountPaid, setTotalAmountPaid] = useState<number>(0);
+  const [paymentTypeCounts, setPaymentTypeCounts] = useState<{
+    cash: number;
+    online: number;
+    balance: number;
+  }>({
+    cash: 0,
+    online: 0,
+    balance: 0,
+  });
+
+  // Calculate payment type counts when invoices are fetched
 
   // Fetch all paid invoices once (no search param)
   const fetchPaidInvoices = async () => {
@@ -35,6 +47,12 @@ const TotalPaidInvoices = () => {
       });
 
       setAllInvoices(response.data.data);
+      setTotalAmountPaid(response.data.amountPaid);
+      setPaymentTypeCounts({
+        cash: response.data.paymentMethodTotals.cash,
+        online: response.data.paymentMethodTotals.online,
+        balance: response.data.paymentMethodTotals.balance,
+      });
     } catch (err: any) {
       setError(err.response?.data?.message || err.message);
       console.error(err);
@@ -107,12 +125,6 @@ const TotalPaidInvoices = () => {
   const handlePageChange = (newPage: number) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
   };
-
-  // Calculate total paid amount
-  const totalPaidAmount = displayedInvoices.reduce(
-    (sum, invoice) => sum + (invoice.amountPaid || 0),
-    0
-  );
 
   // Print function
   const handlePrint = () => {
@@ -226,13 +238,86 @@ const TotalPaidInvoices = () => {
     <div className="max-w-6xl mx-auto p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-800">
-            Paid Invoices
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <span className="inline-flex items-center bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 px-3 py-1 rounded-xl shadow-sm">
+              <svg
+                className="w-5 h-5 mr-1 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 20 20"
+              >
+                <path d="M7 13l3 3 7-7"></path>
+                <circle cx="10" cy="10" r="9"></circle>
+              </svg>
+              Paid Invoices
+            </span>
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Total Paid: ₹{totalPaidAmount.toFixed(2)}
+          <p className="text-base mt-3">
+            <span className="inline-flex items-center font-bold text-green-800 bg-gradient-to-r from-green-100 to-green-200 px-3 py-1 rounded-xl shadow-sm text-lg">
+              <svg
+                className="w-4 h-4 mr-1 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 20 20"
+              >
+                <path d="M4 10l4 4 8-8"></path>
+              </svg>
+              Total Paid:&nbsp;₹
+              {totalAmountPaid?.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
+            </span>
           </p>
+          <div className="flex flex-wrap gap-2 mt-4 text-xs font-medium">
+            <span className="inline-flex items-center bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-lg shadow-sm">
+              <svg
+                className="w-3 h-3 mr-1 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 20 20"
+              >
+                <circle cx="10" cy="10" r="8"></circle>
+              </svg>
+              Cash:{" "}
+              <span className="ml-1 font-bold text-green-700">
+                {paymentTypeCounts.cash}
+              </span>
+            </span>
+            <span className="inline-flex items-center bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-lg shadow-sm">
+              <svg
+                className="w-3 h-3 mr-1 text-blue-400"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 20 20"
+              >
+                <rect x="4" y="4" width="12" height="12" rx="3"></rect>
+              </svg>
+              Online:{" "}
+              <span className="ml-1 font-bold text-blue-700">
+                {paymentTypeCounts.online}
+              </span>
+            </span>
+            <span className="inline-flex items-center bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-lg shadow-sm">
+              <svg
+                className="w-3 h-3 mr-1 text-yellow-400"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 20 20"
+              >
+                <path d="M2 10h16M10 2v16"></path>
+              </svg>
+              Balance:{" "}
+              <span className="ml-1 font-bold text-yellow-700">
+                {paymentTypeCounts.balance}
+              </span>
+            </span>
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           <div className="relative w-full sm:w-64">
@@ -318,6 +403,9 @@ const TotalPaidInvoices = () => {
                     Amount
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Payment Method
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Status
                   </th>
                 </tr>
@@ -360,6 +448,15 @@ const TotalPaidInvoices = () => {
                         <div className="flex items-center">
                           <span className="text-sm font-medium text-green-600">
                             ₹{invoice.amountPaid?.toFixed(2) || ""}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <span className="text-sm text-gray-600">
+                            {invoice.paymentTypes
+                              .map((type: any) => type)
+                              .join(", ")}
                           </span>
                         </div>
                       </td>

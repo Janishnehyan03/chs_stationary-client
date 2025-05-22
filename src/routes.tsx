@@ -3,6 +3,7 @@ import { RouteObject } from "react-router-dom";
 import RoleBasedRoute from "./utils/RoleBasedRoute";
 import NotFoundPage from "./pages/NotFound";
 import UserPage from "./pages/UserPage";
+import StudentInvoices from "./components/invoice/StudentInvoicePayment";
 
 // Public components
 const Login = lazy(() => import("../src/pages/Login"));
@@ -82,6 +83,14 @@ export const protectedRoutes: RouteObject[] = [
     element: (
       <RoleBasedRoute allowedRoles={["super-admin", "admin"]}>
         <UsersPage />
+      </RoleBasedRoute>
+    ),
+  },
+  {
+    path: "/invoices/:studentId",
+    element: (
+      <RoleBasedRoute allowedRoles={["super-admin", "admin"]}>
+        <StudentInvoices />
       </RoleBasedRoute>
     ),
   },

@@ -111,6 +111,15 @@ export const fetchInvoices = async () => {
     console.error("Error fetching invoices:", error);
   }
 };
+export const fetchUserInvoices = async (userId: string) => {
+  try {
+    const response = await Axios.get<Invoice[]>(`/invoices/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user invoices:", error);
+  }
+};
+
 
 interface PaginationParams {
   page?: number;

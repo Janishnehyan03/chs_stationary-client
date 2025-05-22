@@ -4,17 +4,15 @@ import {
   GraduationCap,
   Pencil,
   Trash,
-  //  Trash,
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import AddStudentModal from "./AddStudentModal"; // Adjust the import path
-import { User } from "../../utils/types/types";
-import { downloadInvoicePDF } from "../../utils/services/download-invoice.service";
-import InvoiceOfUser from "../invoice/InvoiceOfUser";
+import { Link } from "react-router-dom"; // Add useNavigate
 import { useHasPermission } from "../../utils/hooks/useHasPermission";
 import { PERMISSIONS } from "../../utils/permissions";
+import { downloadInvoicePDF } from "../../utils/services/download-invoice.service";
+import { User } from "../../utils/types/types";
+import AddStudentModal from "./AddStudentModal";
 
 interface ClassOption {
   _id: string;
@@ -27,7 +25,7 @@ interface Props {
   search: string;
   onDelete: (id: string) => void;
   classes: ClassOption[];
-  fetchStudents: any; // Function to fetch students after adding/editing
+  fetchStudents: any;
 }
 
 export default function StudentsTable({
@@ -41,7 +39,7 @@ export default function StudentsTable({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
-  const [showInvoice, setShowInvoice] = useState(false);
+
 
   const filteredStudents = students.filter(
     (student) =>
@@ -50,23 +48,12 @@ export default function StudentsTable({
       (selectedClass === "" || student.class?._id === selectedClass)
   );
 
-  const handleShowInvoice = (student: User) => {
-    setSelectedStudent(student); // Set the selected student
-    setShowInvoice(true); // Show the invoice modal
-  };
   const canCreateStudents = useHasPermission(PERMISSIONS.students.create);
   const canUpdateStudents = useHasPermission(PERMISSIONS.students.update);
   const canDeleteStudents = useHasPermission(PERMISSIONS.students.delete);
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg overflow-hidden">
-      {showInvoice && selectedStudent && (
-        <InvoiceOfUser
-          student={selectedStudent}
-          showModal={showInvoice}
-          handleClose={() => setShowInvoice(false)}
-        />
-      )}
       {/* Class Selection Header */}
       <div className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900 dark:to-purple-900 border-b border-gray-200 dark:border-gray-700">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
@@ -152,12 +139,9 @@ export default function StudentsTable({
                   key={student._id}
                   className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                  {/* Index Number */}
                   <td className="px-6 py-4 text-gray-600 dark:text-gray-300 text-center">
                     {index + 1}
                   </td>
-
-                  {/* Student Name & Profile */}
                   <td className="px-6 py-4">
                     <Link
                       to={`/user/${student._id}`}
@@ -174,30 +158,22 @@ export default function StudentsTable({
                       </span>
                     </Link>
                   </td>
-
-                  {/* Class & Section */}
                   <td className="px-6 py-4">
                     <p className="inline-flex items-center py-3 px-4 text-sm font-medium text-indigo-900 bg-indigo-50 dark:text-indigo-800 rounded">
                       {student.class?.name}
                       {student.class?.section}
                     </p>
                   </td>
-
-                  {/* Admission Number */}
                   <td className="px-6 py-4">
                     <span className="font-mono text-sm text-gray-700 dark:text-gray-300">
                       {student.admissionNumber}
                     </span>
                   </td>
-
-                  {/* Balance Amount */}
                   <td className="px-6 py-4">
                     <span className="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
                       ₹{student.balance.toLocaleString()}
                     </span>
                   </td>
-
-                  {/* Due Amount */}
                   <td className="px-6 py-4">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-semibold ${
@@ -209,18 +185,14 @@ export default function StudentsTable({
                       ₹{student.dueAmount.toLocaleString()}
                     </span>
                   </td>
-
-                  {/* Show Invoice Button */}
                   <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => handleShowInvoice(student)}
+                    <Link
+                      to={`/invoices/${student._id}`} // Navigate to invoices page
                       className="px-3 py-1.5 cursor-pointer rounded-md text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900 hover:bg-indigo-100 dark:hover:bg-indigo-800 transition-colors font-medium"
                     >
                       Invoice
-                    </button>
+                    </Link>
                   </td>
-
-                  {/* Action Buttons: Edit & Delete */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {canUpdateStudents && (
