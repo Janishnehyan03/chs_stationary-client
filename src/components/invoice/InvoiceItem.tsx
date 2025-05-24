@@ -102,7 +102,7 @@ const InvoiceItem: React.FC<any> = ({
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl shadow-md overflow-hidden border border-gray-300 dark:border-gray-700 transition-all hover:shadow-lg p-6">
+    <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl shadow-md overflow-hidden border border-gray-300 dark:border-gray-700 transition-all hover:shadow-lg p-2">
       <div className="rounded-xl shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 p-6 mb-6 border border-gray-200 dark:border-gray-800">
         <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
           {/* User Info */}
@@ -238,7 +238,7 @@ const InvoiceItem: React.FC<any> = ({
             {invoice.paymentHistory.map((payment: any) => (
               <li
                 key={payment._id}
-                className={`flex justify-between items-center p-4 rounded-xl border transition-opacity duration-200 shadow-sm
+                className={`flex justify-between items-center p-2 rounded-xl border transition-opacity duration-200 shadow-sm
             bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800
             border-gray-100 dark:border-gray-800
             ${payment.corrected ? "opacity-60" : "opacity-100"}

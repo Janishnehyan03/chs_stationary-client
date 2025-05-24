@@ -19,6 +19,7 @@ export default function LatestInvoices({
   limitSelection: any;
 }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+ 
   const [expandedInvoices, setExpandedInvoices] = useState<
     Record<string, boolean>
   >({});
@@ -26,7 +27,7 @@ export default function LatestInvoices({
   const [invoicePaid, setInvoicePaid] = useState<boolean>(false);
 
   // Filter state
-  const [filter, setFilter] = useState("month");
+  const [filter, setFilter] = useState("year");
   const [customStartDate, setCustomStartDate] = useState<Date | null>(
     new Date()
   );
@@ -160,7 +161,7 @@ export default function LatestInvoices({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {filteredInvoices.map((invoice) => {
             // Defensive check for items array
             const totalAmount = Array.isArray(invoice.items)
