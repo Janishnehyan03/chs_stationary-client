@@ -1,4 +1,4 @@
-import { Pencil, Phone, Trash, User } from "lucide-react";
+import { FileText, Pencil, Trash, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import InvoiceOfUser from "../invoice/InvoiceOfUser";
@@ -73,7 +73,7 @@ function TeacherForm({
               required
             />
           </div>
-         
+
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
               Phone
@@ -178,7 +178,7 @@ function TeachersTable({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+    <div className="bg-white dark:bg-gray-900/50 dark:backdrop-blur-sm rounded-2xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-800">
       {/* Invoice Modal */}
       {showInvoice && selectedStudent && (
         <InvoiceOfUser
@@ -203,45 +203,39 @@ function TeachersTable({
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
+            <tr>
+              <th scope="col" className="px-6 py-3 font-medium tracking-wider">
                 #
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <th scope="col" className="px-6 py-3 font-medium tracking-wider">
                 Name
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <th scope="col" className="px-6 py-3 font-medium tracking-wider">
                 Phone
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <th scope="col" className="px-6 py-3 font-medium tracking-wider">
                 Due Amount
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <th scope="col" className="px-6 py-3 font-medium tracking-wider">
                 Balance Amount
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
-                Show Invoice
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
-                Edit
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
-                Delete
+              <th
+                scope="col"
+                className="px-6 py-3 font-medium tracking-wider text-center"
+              >
+                Actions
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
             {loading ? (
               <tr>
-                <td
-                  colSpan={8}
-                  className="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-indigo-500 border-t-transparent"></div>
-                    <span>Loading...</span>
+                <td colSpan={6} className="px-6 py-16 text-center">
+                  <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500"></div>
+                    <span>Loading teachers...</span>
                   </div>
                 </td>
               </tr>
@@ -249,76 +243,73 @@ function TeachersTable({
               filteredTeachers.map((teacher: Teacher, index) => (
                 <tr
                   key={teacher._id}
-                  className="border-b border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors duration-150"
                 >
-                  <td className="px-6 py-4 text-gray-500 dark:text-gray-300">
+                  <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
                     {index + 1}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <Link
-                        to={`/user/${teacher._id}`}
-                        className="flex items-center gap-2"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
-                          <User
-                            size={16}
-                            className="text-indigo-600 dark:text-indigo-300"
-                          />
-                        </div>
-                        <span className="font-medium text-gray-900 dark:text-gray-100 hover:underline">
-                          {teacher.name}
-                        </span>
-                      </Link>
-                    </div>
+                    <Link
+                      to={`/user/${teacher._id}`}
+                      className="flex items-center gap-3 group"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                        <User
+                          size={18}
+                          className="text-gray-500 dark:text-gray-400"
+                        />
+                      </div>
+                      <span className="font-medium text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        {teacher.name}
+                      </span>
+                    </Link>
+                  </td>
+                  <td className="px-6 py-4 font-mono text-gray-600 dark:text-gray-400">
+                    {teacher.phone}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                      <Phone size={16} />
-                      {teacher.phone}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900 rounded-full px-2.5 py-0.5">
+                    <span className="font-medium text-red-800 bg-red-100 dark:bg-red-900/40 dark:text-red-300 rounded-full px-2.5 py-1 text-xs">
                       ₹{teacher.dueAmount || 0}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900 rounded-full px-2.5 py-0.5">
+                    <span className="font-medium text-green-800 bg-green-100 dark:bg-green-900/40 dark:text-green-300 rounded-full px-2.5 py-1 text-xs">
                       ₹{teacher?.balance || 0}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => {
-                        setSelectedStudent(teacher);
-                        setShowInvoice(true);
-                      }}
-                      className="text-indigo-600 dark:text-indigo-300 hover:underline"
-                    >
-                      Show Invoice
-                    </button>
+                    <div className="flex items-center justify-center gap-4">
+                      <Link
+                        to={`/invoices/${teacher._id}`}
+                        className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                      >
+                        <button
+                          className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                          title="Show Invoice"
+                        >
+                          <FileText size={18} />
+                        </button>
+                      </Link>
+                      {canUpdateTeacher && (
+                        <button
+                          onClick={() => handleEditClick(teacher)}
+                          className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                          title="Edit Teacher"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                      )}
+                      {canDeleteTeacher && (
+                        <button
+                          onClick={() => deleteTeacher(teacher._id)}
+                          className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                          title="Delete Teacher"
+                        >
+                          <Trash size={18} />
+                        </button>
+                      )}
+                    </div>
                   </td>
-                  {canUpdateTeacher && (
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleEditClick(teacher)}
-                        className="text-indigo-600 dark:text-indigo-300 cursor-pointer hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
-                      >
-                      <Pencil size={20} />
-                      </button>
-                    </td>
-                  )}
-                  {canDeleteTeacher && (
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => deleteTeacher(teacher._id)}
-                        className="text-red-500 dark:text-red-300 cursor-pointer hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                      >
-                        <Trash size={20} />
-                      </button>
-                    </td>
-                  )}
                 </tr>
               ))
             )}
