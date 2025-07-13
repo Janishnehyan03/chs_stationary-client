@@ -284,6 +284,10 @@ function TeachersTable({
                         className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
                       >
                         <button
+                          onClick={() => {
+                            setSelectedStudent(teacher);
+                            setShowInvoice(true);
+                          }}
                           className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
                           title="Show Invoice"
                         >
