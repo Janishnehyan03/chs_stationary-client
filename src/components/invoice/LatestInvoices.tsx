@@ -1,39 +1,30 @@
-import { ChevronDown, ChevronUp, Plus, Search } from "lucide-react";
+import { Search, PackageOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import Axios from "../../Axios";
 import { Invoice } from "../../utils/types/types";
 import EditInvoiceModal from "./EditInvoiceModal";
-import InvoiceDetails from "./InvoiceDetails";
 import InvoiceItem from "./InvoiceItem";
 import InvoiceSummary from "./InvoiceSummary";
+import InvoiceDrawer from "./InvoiceDrawer";
 import dayjs from "dayjs";
-import { fetchInvoices } from "../../utils/services/invoice.service";
 
 export default function LatestInvoices({
   newDataAdded,
   limit,
   limitSelection,
 }: {
-  newDataAdded: boolean;
+  newDataAdded: any;
   limit: number | string;
   limitSelection: any;
 }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
- 
-  const [expandedInvoices, setExpandedInvoices] = useState<
-    Record<string, boolean>
-  >({});
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
-  const [invoicePaid, setInvoicePaid] = useState<boolean>(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
   // Filter state
   const [filter, setFilter] = useState("year");
-  const [customStartDate, setCustomStartDate] = useState<Date | null>(
-    new Date()
-  );
+  const [customStartDate, setCustomStartDate] = useState<Date | null>(new Date());
   const [customEndDate, setCustomEndDate] = useState<Date | null>(new Date());
-
-  // Search state
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchInvoiceData = async () => {
@@ -45,14 +36,9 @@ export default function LatestInvoices({
         const { startDate, endDate } =
           filter === "custom"
             ? {
-                startDate: dayjs(customStartDate),
-                endDate: dayjs(customEndDate),
-              }
-            : filter === "day"
-            ? {
-                startDate: dayjs().startOf("day"),
-                endDate: dayjs().endOf("day"),
-              }
+              startDate: dayjs(customStartDate),
+              endDate: dayjs(customEndDate),
+            }
             : getFilterDates(filter);
 
         const params = new URLSearchParams({
@@ -82,151 +68,105 @@ export default function LatestInvoices({
   ]);
 
   const handleSave = () => {
-    fetchInvoices(); // Refetch invoices from the server after saving
+    fetchInvoiceData();
     setEditingInvoice(null);
   };
 
-  // Filter invoices based on the selected date range only
   const filteredInvoices = invoices.filter((invoice) => {
     const invoiceDate = dayjs(invoice.createdAt);
     const { startDate, endDate } =
       filter === "custom"
         ? {
-            startDate: dayjs(customStartDate),
-            endDate: dayjs(customEndDate),
-          }
-        : filter === "day"
-        ? {
-            startDate: dayjs().startOf("day"),
-            endDate: dayjs().endOf("day"),
-          }
+          startDate: dayjs(customStartDate),
+          endDate: dayjs(customEndDate),
+        }
         : getFilterDates(filter);
 
-    return invoiceDate.isAfter(startDate) && invoiceDate.isBefore(endDate);
+    return (invoiceDate.isAfter(startDate) || invoiceDate.isSame(startDate)) &&
+      (invoiceDate.isBefore(endDate) || invoiceDate.isSame(endDate));
   });
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Invoice Management
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            View and manage all student invoices
-          </p>
-        </div>
-      </div>
-
-      {/* Status Bar */}
+    <div className="space-y-6">
+      {/* Integrated Dashboard Section */}
       <InvoiceSummary
         filter={filter}
         setFilter={setFilter}
         setCustomStartDate={setCustomStartDate}
         setCustomEndDate={setCustomEndDate}
-        invoicePaid={invoicePaid}
+        invoicePaid={false}
         customStartDate={customStartDate || new Date()}
         customEndDate={customEndDate || new Date()}
       />
-      {limitSelection}
-      {/* Search Box */}
-      <div className="mt-6 mb-8">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search by student name or admission number..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2.5 pl-10 rounded-xl border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800"
-          />
-          <Search
-            size={18}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
-          />
+
+      {/* List Header & Search */}
+      <div className="bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div className="p-6 md:p-8 space-y-6">
+          <div className="flex flex-col md:flex-row gap-6 items-center">
+            <div className="relative flex-1 w-full group">
+              <Search
+                size={20}
+                className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"
+              />
+              <input
+                type="text"
+                placeholder="Find records by name, ID or amount..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-14 pr-6 py-4 rounded-2xl border border-gray-100 dark:border-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-sm bg-gray-50/50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 font-medium"
+              />
+            </div>
+            {limitSelection}
+          </div>
         </div>
+
+        {filteredInvoices.length === 0 ? (
+          <div className="py-24 text-center">
+            <div className="w-20 h-20 bg-gray-50 dark:bg-gray-900/50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300 dark:text-gray-600">
+              <PackageOpen size={40} />
+            </div>
+            <h3 className="text-xl font-black text-gray-900 dark:text-gray-100 mb-2">
+              No results match your criteria
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              {searchQuery ? "Try adjusting your search terms or filters" : "Start by creating a new invoice record"}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto p-0">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-50 dark:border-gray-800">
+                  <th className="p-5 text-[10px] uppercase font-black text-gray-400 tracking-[0.2em] pl-8">Student</th>
+                  <th className="p-5 text-[10px] uppercase font-black text-gray-400 tracking-[0.2em]">Date</th>
+                  <th className="p-5 text-[10px] uppercase font-black text-gray-400 tracking-[0.2em]">Total</th>
+                  <th className="p-5 text-[10px] uppercase font-black text-gray-400 tracking-[0.2em]">Paid</th>
+                  <th className="p-5 text-[10px] uppercase font-black text-gray-400 tracking-[0.2em] text-right">Due</th>
+                  <th className="p-5 text-[10px] uppercase font-black text-gray-400 tracking-[0.2em] text-center">Status</th>
+                  <th className="p-5 w-16 pr-8"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                {filteredInvoices.map((invoice) => (
+                  <InvoiceItem
+                    key={invoice._id}
+                    invoice={invoice}
+                    onView={(inv: any) => setSelectedInvoice(inv)}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {filteredInvoices.length === 0 ? (
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-          <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Plus size={32} className="text-blue-600 dark:text-blue-400" />
-          </div>
-          <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-2">
-            No Invoices Found
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            {searchQuery
-              ? "No invoices match your search."
-              : "Create your first invoice to get started."}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-          {filteredInvoices.map((invoice) => {
-            // Defensive check for items array
-            const totalAmount = Array.isArray(invoice.items)
-              ? invoice.items.reduce((sum, item) => {
-                  const price = item.product?.price || item?.price || 0;
-                  return sum + (item.quantity || 0) * price;
-                }, 0)
-              : 0;
-
-            // Log warning if items is invalid
-            if (!Array.isArray(invoice.items)) {
-              console.warn(
-                `Invalid items for invoice ${invoice._id}:`,
-                invoice.items
-              );
-            }
-
-            return (
-              <div
-                key={invoice._id}
-                className="bg-white dark:bg-gray-800 shadow-md rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-all hover:shadow-lg dark:hover:shadow-gray-900"
-              >
-                {/* Invoice Header */}
-                <InvoiceItem
-                  invoice={invoice}
-                  setEditingInvoice={setEditingInvoice}
-                  fetchInvoices={fetchInvoices}
-                  setInvoicePaid={setInvoicePaid}
-                />
-
-                {/* Show More / Show Less Toggle */}
-                <button
-                  onClick={() =>
-                    setExpandedInvoices((prev) => ({
-                      ...prev,
-                      [invoice._id]: !prev[invoice._id],
-                    }))
-                  }
-                  className="w-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 cursor-pointer text-sm font-medium transition-all p-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-t border-gray-200 dark:border-gray-700"
-                >
-                  {expandedInvoices[invoice._id]
-                    ? "Hide Details"
-                    : "View Details"}
-                  {expandedInvoices[invoice._id] ? (
-                    <ChevronUp
-                      className="ml-1 transition-transform duration-300"
-                      size={14}
-                    />
-                  ) : (
-                    <ChevronDown
-                      className="ml-1 transition-transform duration-300"
-                      size={14}
-                    />
-                  )}
-                </button>
-
-                {/* Expanded Product Details */}
-                {expandedInvoices[invoice._id] && (
-                  <InvoiceDetails invoice={invoice} totalAmount={totalAmount} />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* Modern Drawer for Details */}
+      <InvoiceDrawer
+        invoice={selectedInvoice}
+        isOpen={!!selectedInvoice}
+        onClose={() => setSelectedInvoice(null)}
+        fetchInvoices={fetchInvoiceData}
+      />
 
       {/* Edit Invoice Modal */}
       {editingInvoice && (
@@ -242,7 +182,7 @@ export default function LatestInvoices({
 
 // Helper function to get filter dates
 export const getFilterDates = (filter: string) => {
-  const today = dayjs().toDate();
+  const today = dayjs().endOf("day").toDate();
   const startOfWeek = dayjs().startOf("week").toDate();
   const startOfMonth = dayjs().startOf("month").toDate();
   const startOfYear = dayjs().startOf("year").toDate();
@@ -259,7 +199,9 @@ export const getFilterDates = (filter: string) => {
       return { startDate: dayjs(startOfMonth), endDate: dayjs(today) };
     case "year":
       return { startDate: dayjs(startOfYear), endDate: dayjs(today) };
+    case "all":
+      return { startDate: dayjs("2000-01-01"), endDate: dayjs(today) };
     default:
-      return { startDate: dayjs(today), endDate: dayjs(today) };
+      return { startDate: dayjs(today).startOf("day"), endDate: dayjs(today) };
   }
 };

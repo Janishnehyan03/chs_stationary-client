@@ -6,7 +6,6 @@ interface HandlePaymentParams {
   amount: number | "";
   method: "cash" | "online" | "balance" | "other";
   useBalance: boolean;
-  pendingAmount: number;
   studentBalance: number;
   fetchInvoices: () => void;
   setInvoicePaid: (paid: boolean) => void;
@@ -28,7 +27,6 @@ export const handlePayment = async ({
   amount,
   method,
   useBalance,
-  pendingAmount,
   studentBalance,
   fetchInvoices,
   setInvoicePaid,
@@ -41,10 +39,7 @@ export const handlePayment = async ({
     return;
   }
 
-  if (amount > pendingAmount) {
-    alert(`Amount (₹${amount}) exceeds pending amount (₹${pendingAmount}).`);
-    return;
-  }
+
 
   if (useBalance && studentBalance < amount) {
     alert(`Insufficient student balance (₹${studentBalance}).`);

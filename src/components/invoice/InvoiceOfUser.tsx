@@ -47,21 +47,34 @@ const InvoiceOfUser: React.FC<InvoiceOfStudentProps> = ({
           </button>
         </div>
 
-        {/* Invoices Grid */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {student.invoices.map((invoice: any) => (
-            <div
-              key={invoice._id}
-              className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 shadow-md border border-gray-200 dark:border-gray-700"
-            >
-              <InvoiceItem
-                invoice={invoice}
-                setEditingInvoice={setEditingInvoice}
-                fetchInvoices={fetchInvoices}
-                setInvoicePaid={setInvoicePaid}
-              />
-            </div>
-          ))}
+        {/* Invoices Table */}
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="p-4">Student Info</th>
+                  <th className="p-4">Date</th>
+                  <th className="p-4 text-right">Total (₹)</th>
+                  <th className="p-4 text-right">Paid (₹)</th>
+                  <th className="p-4 text-right">Due (₹)</th>
+                  <th className="p-4 text-center">Status</th>
+                  <th className="p-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {student.invoices.map((invoice: any) => (
+                  <InvoiceItem
+                    key={invoice._id}
+                    invoice={invoice}
+                    setEditingInvoice={setEditingInvoice}
+                    fetchInvoices={fetchInvoices}
+                    setInvoicePaid={setInvoicePaid}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Footer */}

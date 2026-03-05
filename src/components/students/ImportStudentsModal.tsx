@@ -14,6 +14,8 @@ interface Student {
   name: string;
   admissionNumber: string;
   class: string;
+  rollNumber: string | number;
+  balance: number;
 }
 
 export default function ImportStudents({
@@ -50,6 +52,8 @@ export default function ImportStudents({
           const parsedStudents: Student[] = (jsonData as any[]).map((row) => ({
             name: row["Name"] || "",
             admissionNumber: row["Admission Number"] || "",
+            rollNumber: row["Roll Number"] || "",
+            balance: row["Balance"] || 0,
             class: selectedClass,
           }));
 
@@ -155,6 +159,12 @@ export default function ImportStudents({
                   <th className="p-2 text-left text-gray-800 dark:text-gray-200">
                     Admission Number
                   </th>
+                  <th className="p-2 text-left text-gray-800 dark:text-gray-200">
+                    Roll No
+                  </th>
+                  <th className="p-2 text-left text-gray-800 dark:text-gray-200">
+                    Balance
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -168,6 +178,12 @@ export default function ImportStudents({
                     </td>
                     <td className="p-2 text-gray-800 dark:text-gray-200">
                       {student.admissionNumber}
+                    </td>
+                    <td className="p-2 text-gray-800 dark:text-gray-200">
+                      {student.rollNumber}
+                    </td>
+                    <td className="p-2 text-gray-800 dark:text-gray-200">
+                      {student.balance}
                     </td>
                   </tr>
                 ))}

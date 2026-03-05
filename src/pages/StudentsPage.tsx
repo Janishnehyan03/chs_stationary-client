@@ -148,18 +148,7 @@ function Students() {
           <p>Showing {students.length} results</p>
         </div>
       </div>
-      {/* Developer Details and Copyright */}
-      <div className="mt-12 text-center text-gray-400 text-xs">
-        <p>
-          Developed by {" "}
-          <a href="https://digitiostack.vercel.app" target="_blank" className="font-semibold text-teal-600">
-            <span className="font-semibold text-teal-600">Digitio Stack </span>
-          </a>
-        </p>
-        <p>
-          &copy; {new Date().getFullYear()} CHS Stationary. All rights reserved.
-        </p>
-      </div>
+      
     </div>
   );
 }

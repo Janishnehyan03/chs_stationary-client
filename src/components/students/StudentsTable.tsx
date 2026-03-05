@@ -171,18 +171,17 @@ export default function StudentsTable({
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
-                      ₹{student.balance.toLocaleString()}
+                      ₹{(student.balance || 0).toLocaleString()}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        student.dueAmount > 0
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${(student.dueAmount || 0) > 0
                           ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
                           : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                      }`}
+                        }`}
                     >
-                      ₹{student.dueAmount.toLocaleString()}
+                      ₹{(student.dueAmount || 0).toLocaleString()}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center">

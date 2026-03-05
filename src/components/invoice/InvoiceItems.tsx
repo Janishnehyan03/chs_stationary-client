@@ -1,11 +1,5 @@
-import { Trash2 } from "lucide-react"; // Import Lucide icon
-
-interface InvoiceItem {
-  product: string;
-  title: string;
-  quantity: number;
-  price: number;
-}
+import { Trash2 } from "lucide-react";
+import { InvoiceItem } from "../../utils/types/types";
 
 interface InvoiceItemsProps {
   items: InvoiceItem[];
@@ -52,11 +46,21 @@ const InvoiceItems = ({
               {items.map((item, index) => (
                 <tr
                   key={index}
-                  className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150"
+                  className={`border-b border-gray-100 transition-colors duration-150 ${item.stock !== undefined && item.quantity > item.stock
+                    ? "bg-red-50 hover:bg-red-100"
+                    : "hover:bg-gray-50 bg-white"
+                    }`}
                 >
                   <td className="py-4 px-4 text-gray-600">{index + 1}</td>
-                  <td className="py-4 px-4 text-gray-800 font-medium truncate max-w-[200px]">
-                    {item.title}
+                  <td className="py-4 px-4 font-medium truncate max-w-[200px]">
+                    <div className={`${item.stock !== undefined && item.quantity > item.stock ? "text-red-600" : "text-gray-800"}`}>
+                      {item.title}
+                    </div>
+                    {item.stock !== undefined && item.quantity > item.stock && (
+                      <div className="text-xs text-red-500 font-semibold mt-0.5 flex items-center gap-1">
+                        Wait, only {item.stock} in stock!
+                      </div>
+                    )}
                   </td>
                   <td className="py-4 px-4 text-center">
                     <input
@@ -69,10 +73,12 @@ const InvoiceItems = ({
                           Math.max(1, Number(e.target.value))
                         )
                       }
-                      className="w-20 py-1.5 px-2 border border-gray-300 rounded-md 
-                      text-center text-gray-700 focus:ring-2 focus:ring-blue-400 
-                      focus:border-transparent hover:border-gray-400 transition 
-                      appearance-none"
+                      className={`w-20 py-1.5 px-2 border rounded-md text-center focus:ring-2 focus:border-transparent transition appearance-none
+                        ${item.stock !== undefined && item.quantity > item.stock
+                          ? "border-red-300 text-red-700 bg-red-50 focus:ring-red-400"
+                          : "border-gray-300 text-gray-700 focus:ring-blue-400 hover:border-gray-400"
+                        }
+                      `}
                     />
                   </td>
                   <td className="py-4 px-4 text-right font-semibold text-gray-900">

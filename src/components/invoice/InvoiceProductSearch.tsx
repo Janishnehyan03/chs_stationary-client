@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import Axios from "../../Axios";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Package } from "lucide-react";
 import { Product } from "../../utils/types/types";
-
 
 interface ProductSearchProps {
   onAddProduct: any;
@@ -38,6 +37,10 @@ const InvoiceProductSearch = ({ onAddProduct }: ProductSearchProps) => {
   }, [productQuery]);
 
   const handleSelectProduct = (product: Product) => {
+    if (product.stock <= 0) {
+      // Optional: Prevent adding out of stock items or just warn
+      // For now, allowing it but it might be good to warn
+    }
     onAddProduct(product);
     setProductQuery("");
     setProducts([]);
@@ -60,16 +63,19 @@ const InvoiceProductSearch = ({ onAddProduct }: ProductSearchProps) => {
     <div className="relative w-full">
       {/* Input field */}
       <div className="relative">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <Package size={18} />
+        </div>
         <input
           type="text"
-          placeholder="Search products by name or SKU..."
+          placeholder="Search products by name, SKU or code..."
           value={productQuery}
           onChange={(e) => setProductQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="w-full px-4 py-2.5 border border-gray-200 rounded-lg 
+          className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl 
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-        text-gray-700 placeholder-gray-400 transition-shadow duration-200 
-        hover:shadow-sm pr-10"
+        bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 
+        transition-all duration-200 shadow-sm hover:bg-white dark:hover:bg-gray-750"
         />
 
         {/* Loading Indicator */}
@@ -88,7 +94,7 @@ const InvoiceProductSearch = ({ onAddProduct }: ProductSearchProps) => {
               setSelectedIndex(-1);
             }}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 
-          hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-200 
+          hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 
           rounded-full p-1 transition-colors duration-150"
           >
             <X size={18} />
@@ -104,28 +110,44 @@ const InvoiceProductSearch = ({ onAddProduct }: ProductSearchProps) => {
       {/* Product Suggestions Dropdown */}
       {products.length > 0 && (
         <div
-          className="absolute w-full mt-1.5 bg-white shadow-xl rounded-lg 
-      border border-gray-100 max-h-64 overflow-y-auto z-50"
+          className="absolute w-full mt-2 bg-white dark:bg-gray-800 shadow-xl rounded-xl 
+      border border-gray-100 dark:border-gray-700 max-h-80 overflow-y-auto z-50 divide-y divide-gray-100 dark:divide-gray-700"
         >
           {products.map((p, index) => (
             <button
               key={p._id}
               onClick={() => handleSelectProduct(p)}
-              className={`w-full flex justify-between items-center px-4 py-2.5 
-            text-left transition-colors duration-150 ${
-              selectedIndex === index
-                ? "bg-blue-50 text-blue-900"
-                : "hover:bg-gray-50 text-gray-800"
-            }`}
+              className={`w-full flex justify-between items-center px-4 py-3 
+            text-left transition-colors duration-150 group ${selectedIndex === index
+                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
+                } ${p.stock <= 0 ? "opacity-75 bg-gray-50/50" : ""}`}
             >
-              <span className="text-sm font-medium truncate max-w-[70%]">
-                {p.title} <span className="text-gray-500 font-normal bg-gray-100 px-1.5 rounded-md">
-                {p.productCode}
+              <div className="flex-1 min-w-0 pr-4">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="font-medium text-sm truncate">
+                    {p.title}
+                  </span>
+                  {p.stock <= 0 && (
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 bg-red-100 px-1.5 py-0.5 rounded">Out of Stock</span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                  <span className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded font-mono">
+                    {p.productCode}
+                  </span>
+                  <span className={`${p.stock > 0 ? "text-green-600 dark:text-green-400" : "text-red-500"}`}>
+                    {p.stock > 0 ? `${p.stock} in stock` : "No stock"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className="block text-sm font-bold text-gray-900 dark:text-white">
+                  ₹{p.price.toFixed(2)}
                 </span>
-              </span>
-              <span className="text-sm font-semibold text-gray-600">
-                ${p.price.toFixed(2)}
-              </span>
+              </div>
             </button>
           ))}
         </div>

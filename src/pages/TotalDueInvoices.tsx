@@ -79,9 +79,9 @@ const DueInvoices = () => {
       const searchLower = search.toLowerCase();
       filteredInvoices = filteredInvoices.filter(
         (invoice) =>
-          invoice.user.name.toLowerCase().includes(searchLower) ||
-          invoice.user.admissionNumber?.toLowerCase().includes(searchLower) ||
-          invoice.user.phone?.includes(search)
+          invoice.user?.name?.toLowerCase().includes(searchLower) ||
+          invoice.user?.admissionNumber?.toLowerCase().includes(searchLower) ||
+          invoice.user?.phone?.includes(search)
       );
     }
 
@@ -310,34 +310,32 @@ const DueInvoices = () => {
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <span>{invoice.user.name}</span>
+                      <span>{invoice.user?.name || "Unknown User"}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    {invoice.user.phone ||
-                      invoice.user.admissionNumber ||
+                    {invoice.user?.phone ||
+                      invoice.user?.admissionNumber ||
                       "N/A"}
                   </td>
                   <td className="px-6 py-4">
-                    {invoice.user.class
-                      ? `${invoice.user.class.name}${
-                          invoice.user.class.section
-                            ? `-${invoice.user.class.section}`
-                            : ""
-                        }`
+                    {invoice.user?.class
+                      ? `${invoice.user.class.name}${invoice.user.class.section
+                        ? `-${invoice.user.class.section}`
+                        : ""
+                      }`
                       : "N/A"}
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        invoice.user.role === "student"
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${invoice.user?.role === "student"
                           ? "bg-green-100 text-green-800"
                           : "bg-purple-100 text-purple-800"
-                      }`}
+                        }`}
                     >
-                      {invoice.user.role
+                      {invoice.user?.role
                         ? invoice.user.role.charAt(0).toUpperCase() +
-                          invoice.user.role.slice(1)
+                        invoice.user.role.slice(1)
                         : "N/A"}
                     </span>
                   </td>
@@ -352,11 +350,10 @@ const DueInvoices = () => {
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
-                        invoice.status === "paid"
+                      className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${invoice.status === "paid"
                           ? "bg-green-500"
                           : "bg-red-500"
-                      }`}
+                        }`}
                     >
                       {invoice.status.toUpperCase()}
                     </span>

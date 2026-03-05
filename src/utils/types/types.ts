@@ -34,8 +34,8 @@ export interface Invoice {
     role?: string;
   };
   items: {
-    price: number; product: { price: number }; quantity: number 
-}[];
+    price: number; product: { price: number }; quantity: number
+  }[];
   totalAmount: number;
   amountPaid: number;
   status: "paid" | "unpaid" | "partially_paid";
@@ -100,4 +100,5 @@ export interface InvoiceItem {
   title: string;
   quantity: number;
   price: number;
+  stock?: number;
 }

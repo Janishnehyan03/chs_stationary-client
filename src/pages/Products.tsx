@@ -92,11 +92,11 @@ export default function ProductsPage() {
   const handleEditClick = (product: Product) => {
     setNewProduct({
       title: product.title,
-      price: product.price.toString(),
+      price: product.price?.toString() || "0",
       productCode: product.productCode,
       wholeSalePrice: product.wholeSalePrice?.toString() || "",
       description: product.description || "",
-      stock: product.stock.toString(),
+      stock: product.stock?.toString() || "0",
     });
     setIsEditing(true);
     setEditingProductId(product._id.toString());
