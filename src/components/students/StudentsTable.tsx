@@ -38,7 +38,7 @@ export default function StudentsTable({
   const [selectedClass, setSelectedClass] = useState<string>("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
 
   const filteredStudents = students.filter(
@@ -199,7 +199,12 @@ export default function StudentsTable({
                           className="p-2 rounded-md cursor-pointer text-gray-500 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors"
                           title="Edit Student"
                           onClick={() => {
-                            setSelectedStudent(student);
+                            setSelectedStudent({
+                              ...student,
+                              class: student.class?._id || "",
+                              rollNumber: student.rollNumber || "",
+                              balance: student.balance ?? 0,
+                            });
                             setIsEditModalOpen(true);
                           }}
                         >
@@ -248,7 +253,14 @@ export default function StudentsTable({
         }}
         fetchStudents={fetchStudents}
         newStudent={
-          selectedStudent || { name: "", classId: "", admissionNumber: "" }
+          selectedStudent ||
+          {
+            name: "",
+            class: "",
+            admissionNumber: "",
+            rollNumber: "",
+            balance: 0,
+          }
         }
         setNewStudent={setSelectedStudent}
         classes={classes}

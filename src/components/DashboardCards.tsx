@@ -9,9 +9,11 @@ import {
   FileText,
   ShoppingBag,
 } from "lucide-react";
+import { useState } from "react";
 import Axios from "../Axios";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { useUserContext } from "../context/userContext";
 
 interface DashboardStats {
   totalTeachers: number;
@@ -23,6 +25,97 @@ interface DashboardStats {
 }
 
 const DashboardCards: React.FC = () => {
+  const { user } = useUserContext();
+  const [isDeletingStudents, setIsDeletingStudents] = useState(false);
+  const [isDeletingAllData, setIsDeletingAllData] = useState(false);
+
+  const requireTripleConfirmation = (
+    title: string,
+    keyword: string,
+  ): boolean => {
+    const first = window.confirm(
+      `${title}\n\nThis action is permanent and cannot be undone.`,
+    );
+    if (!first) return false;
+
+    const second = window.prompt(
+      `Second confirmation: type ${keyword} to continue.`,
+      "",
+    );
+    if (second !== keyword) {
+      alert("Confirmation text did not match. Action cancelled.");
+      return false;
+    }
+
+    const third = window.confirm(
+      `Final confirmation: are you absolutely sure to proceed with ${title.toLowerCase()}?`,
+    );
+    return third;
+  };
+
+  const handleDeleteStudents = async () => {
+    if (
+      !requireTripleConfirmation(
+        "Delete all students and related invoices",
+        "DELETE STUDENTS",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsDeletingStudents(true);
+      const response = await Axios.delete("/stats/danger-zone/students");
+      const { deletedStudents = 0, deletedInvoices = 0 } = response.data || {};
+      alert(
+        `Completed. Deleted ${deletedStudents} students and ${deletedInvoices} invoices.`,
+      );
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to delete students:", error);
+      alert("Failed to delete student data. Please try again.");
+    } finally {
+      setIsDeletingStudents(false);
+    }
+  };
+
+  const handleDeleteAllData = async () => {
+    if (
+      !requireTripleConfirmation(
+        "Delete all academic year data",
+        "DELETE ALL DATA",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsDeletingAllData(true);
+      const response = await Axios.delete("/stats/danger-zone/all");
+      const {
+        deletedUsers = 0,
+        deletedClasses = 0,
+        deletedInvoices = 0,
+        deletedProducts = 0,
+        deletedPurchases = 0,
+        deletedShops = 0,
+      } = response.data || {};
+
+      alert(
+        `Completed. Users: ${deletedUsers}, Classes: ${deletedClasses}, Invoices: ${deletedInvoices}, Products: ${deletedProducts}, Purchases: ${deletedPurchases}, Shops: ${deletedShops}.`,
+      );
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to delete all data:", error);
+      alert("Failed to delete all academic data. Please try again.");
+    } finally {
+      setIsDeletingAllData(false);
+    }
+  };
+
+  const canUseDangerZone =
+    user?.role === "admin" || user?.role === "super-admin";
+
   const {
     data: stats,
     isLoading,
@@ -131,6 +224,35 @@ const DashboardCards: React.FC = () => {
           color="green"
         />
       </div>
+
+      {canUseDangerZone && (
+        <div className="rounded-2xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 p-6">
+          <h2 className="text-xl font-bold text-red-700 dark:text-red-300">
+            Danger Zone
+          </h2>
+          <p className="mt-2 text-sm text-red-700/90 dark:text-red-300/90">
+            Use these options only for starting a new academic year. Deletion is permanent and includes multiple confirmations.
+          </p>
+          <div className="mt-4 flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={handleDeleteStudents}
+              disabled={isDeletingStudents || isDeletingAllData}
+              className="px-4 py-2.5 rounded-lg bg-red-600 text-white hover:bg-red-500 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isDeletingStudents ? "Deleting Students..." : "Bulk Delete Students"}
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteAllData}
+              disabled={isDeletingStudents || isDeletingAllData}
+              className="px-4 py-2.5 rounded-lg bg-red-800 text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isDeletingAllData ? "Deleting All Data..." : "Bulk Delete All Data"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
