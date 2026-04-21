@@ -25,17 +25,25 @@ export default function AddStudentModal({
   // Reset form when modal is opened or closed
   useEffect(() => {
     if (!isOpen) {
-      setNewStudent({ name: "", class: "", admissionNumber: "", balance: 0 });
+      setNewStudent({
+        name: "",
+        class: "",
+        admissionNumber: "",
+        rollNumber: "",
+        balance: 0,
+      });
     }
   }, [isOpen, setNewStudent]);
 
   const handleSubmit = async () => {
     if (
-      !isEditMode &&
-      (!newStudent.name ||
-        !newStudent.admissionNumber ||
-        !newStudent.class ||
-        !newStudent.balance)
+      !newStudent.name ||
+      !newStudent.admissionNumber ||
+      !newStudent.rollNumber ||
+      !newStudent.class ||
+      newStudent.balance === "" ||
+      newStudent.balance === null ||
+      newStudent.balance === undefined
     ) {
       alert("Please fill in all fields");
       return;
@@ -122,6 +130,23 @@ export default function AddStudentModal({
                 setNewStudent({
                   ...newStudent,
                   admissionNumber: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Roll Number
+            </label>
+            <input
+              type="text"
+              placeholder="Enter roll number"
+              className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              value={newStudent.rollNumber || ""}
+              onChange={(e) =>
+                setNewStudent({
+                  ...newStudent,
+                  rollNumber: e.target.value,
                 })
               }
             />

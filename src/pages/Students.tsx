@@ -18,8 +18,10 @@ export default function StudentsPage() {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({
     name: "",
-    classId: "",
+    class: "",
     admissionNumber: "",
+    rollNumber: "",
+    balance: 0,
   });
 
   const fetchStudents = async () => {

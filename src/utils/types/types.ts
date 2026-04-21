@@ -68,6 +68,7 @@ export interface User {
   name: string;
   password: string;
   admissionNumber: string;
+  rollNumber?: string;
   class?: Class;
   dueAmount: number;
   balance: number;
